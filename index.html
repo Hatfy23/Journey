@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0e0c09">
+<title>The Journey</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230e0c09'/%3E%3Ctext y='.9em' x='10' font-size='80'%3E🧭%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{--bg:#0e0c09;--panel:#1a1610;--panel2:#14110c;--panel3:#221e17;--line:#3d3420;--leather:#5a4a28;--gold:#c8a050;--gold-hi:#e8c878;--gold-dim:#7a5e28;--text:#d4c8a8;--dim:#9a8a68;--moss:#4a6f34;--moss-hi:#8fb872;--slate:#6a8aa0;--ink:#2b2118;--ink-soft:#4a3f30;--ps:#b8a374}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{overflow-x:hidden}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#1a1610,#0e0c09 62%);font-family:'Crimson Text',serif;font-size:17px;color:var(--text)}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+.app{max-width:1500px;margin:0 auto;padding:14px 14px 90px}
+.app-header{text-align:center}
+.app-header h1{font-family:'Uncial Antiqua','Cinzel',serif;font-weight:400;color:var(--gold);letter-spacing:8px;font-size:clamp(28px,6vw,46px);margin:6px 0 0;text-shadow:0 0 22px rgba(200,160,80,.22)}
+.subtitle{color:var(--gold-dim);font-style:italic;margin:4px 0 0}
+.app-header::after{content:'';display:block;width:380px;max-width:70%;height:1.5px;margin:12px auto 0;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.user-bar{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 12px;background:var(--bg);border-bottom:1px solid var(--line);font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold-dim)}
+.user-link{background:none;border:none;padding:0;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--gold-dim)}.user-link:hover{color:var(--gold-hi)}
+.dot{width:7px;height:7px;border-radius:50%;background:#6b8f4e;display:inline-block}
+.btn{font-family:'Cinzel',serif;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;background:var(--panel3);color:var(--gold);border:1px solid var(--gold-dim);border-radius:2px;padding:8px 14px;cursor:pointer}
+.btn:hover{border-color:var(--gold);color:var(--gold-hi)}
+.btn.ghost{border-color:var(--leather);color:var(--dim)}.btn.sm{padding:5px 9px;font-size:10px}
+.btn.moss{background:#2f4a22;border-color:#5a8a40;color:#cfe3bf}.btn.danger{color:#e08a75;border-color:#e08a75}
+.main-tabs{display:flex;justify-content:center;gap:8px;margin:16px 0 12px;flex-wrap:wrap}
+.main-tab{font-family:'Cinzel',serif;background:var(--panel2);border:1px solid var(--leather);border-radius:2px;color:#9a8a68;text-transform:uppercase;letter-spacing:1.6px;font-size:12px;padding:9px 18px;cursor:pointer}
+.main-tab.active{background:var(--panel3);border-color:var(--gold);color:var(--gold-hi);box-shadow:0 0 14px rgba(200,160,80,.12)}
+.filters{background:var(--panel2);border:1px solid var(--line);padding:10px;margin-bottom:16px}
+.filters-top{display:flex;gap:8px}
+.filters input[type=search],.filters select{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:2px;padding:7px 9px}
+.filters-top input{flex:1;min-width:0}
+.filters-body{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+.filters-body label{font-size:14px;color:var(--dim);display:flex;gap:5px;align-items:center}
+.only-mobile,.fab{display:none}
+.layout{display:block}.sidebar{display:none}
+@media(min-width:1000px){.layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:20px}.sidebar{display:block;position:sticky;top:12px;align-self:start;max-height:calc(100vh - 24px);overflow:auto;background:var(--panel);border:1px solid var(--line);padding:10px}.layout.no-side{display:block}.layout.no-side .sidebar{display:none}}
+@media(max-width:699px){.filters-body{display:none}.filters.open .filters-body{display:flex}.only-mobile{display:inline-block}.btn-add-top{display:none}.fab{display:flex;position:fixed;right:16px;bottom:16px;width:54px;height:54px;border-radius:50%;background:var(--panel3);border:2px solid var(--gold);color:var(--gold-hi);font-size:28px;align-items:center;justify-content:center;z-index:40;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.6)}}
+.side-title{font-family:'Cinzel',serif;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-size:12px;margin-bottom:8px}
+.tree-line{display:flex;align-items:center}
+.chev{width:20px;background:none;border:none;color:var(--gold-dim);cursor:pointer;padding:0;font-size:11px}
+.tree-row{flex:1;text-align:left;background:none;border:none;color:var(--text);cursor:pointer;padding:5px 6px;font-size:15px;display:flex;justify-content:space-between;gap:6px;border-left:2px solid transparent}
+.tree-row:hover{background:rgba(200,160,80,.08)}.tree-row.active{border-left-color:var(--gold);color:var(--gold-hi);background:rgba(200,160,80,.08)}
+.cnt{color:var(--dim);font-size:12px}
+.crumbs{font-size:15px;margin-bottom:12px;color:var(--dim)}.crumbs button{background:none;border:none;color:var(--gold);cursor:pointer;padding:0;font:inherit}.crumbs b{color:var(--gold-hi)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:0;margin:0 0 12px}
+.seg button{background:var(--panel2);border:1px solid var(--leather);color:var(--dim);padding:6px 12px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.seg button.on{background:var(--panel3);color:var(--gold-hi);border-color:var(--gold)}
+.hero{display:grid;grid-template-columns:1fr;background:var(--panel);border:1px solid var(--leather);margin-bottom:18px}
+@media(min-width:760px){.hero{grid-template-columns:300px 1fr}}
+.hero-img,.card-img{position:relative;background:#0a0806;min-height:200px;overflow:hidden}
+.hero-img{aspect-ratio:16/10}@media(min-width:760px){.hero-img{aspect-ratio:auto}}
+.ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:44px;opacity:.45}
+.hero-img img,.card-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero-body{padding:16px 18px}
+.kindlabel{font-family:'Cinzel',serif;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold-dim)}
+.hero h2{font-family:'Cinzel',serif;color:var(--gold-hi);margin:4px 0 8px;font-size:26px;letter-spacing:.5px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.chip{font-size:13px;border:1px solid var(--gold-dim);color:var(--gold);padding:1px 8px;border-radius:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.addr{color:var(--dim);font-size:15px}.hint{color:var(--dim);font-style:italic;font-size:14px}
+.info{white-space:pre-line;margin:10px 0;line-height:1.5}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:10px 0}
+.fact{background:var(--bg);border-left:2px solid var(--gold-dim);padding:6px 9px}.fact small{display:block;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
+.block{margin-top:14px;border-top:1px dashed var(--leather);padding-top:10px}
+.block h3{font-family:'Cinzel',serif;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin:0 0 6px}
+.pois{list-style:none;margin:0 0 8px;padding:0}.pois li{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.pois label{display:flex;gap:8px;cursor:pointer}.pois .done{text-decoration:line-through;color:var(--dim)}
+.pois button{background:none;border:none;color:var(--dim);cursor:pointer}
+.inline-add{display:flex;gap:6px}.inline-add input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);color:var(--text);padding:6px 8px}
+.linkbtn{display:inline-block;margin:0 6px 6px 0;font-size:14px;color:var(--gold);border:1px solid var(--leather);padding:4px 10px;text-decoration:none}.linkbtn:hover{border-color:var(--gold);color:var(--gold-hi)}
+.list-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px}.list-head h3{font-family:'Cinzel',serif;color:var(--gold);margin:0 0 10px;font-size:15px}
+.muted{color:var(--dim);font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+@media(max-width:699px){.cards{grid-template-columns:repeat(2,1fr);gap:10px}}
+.card{background:var(--panel);border:1px solid var(--leather);cursor:pointer;display:flex;flex-direction:column;overflow:hidden;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.card-img{min-height:0;aspect-ratio:4/3}.card-body{padding:9px 10px}
+.card-title{font-family:'Cinzel',serif;font-size:15px;font-weight:600;line-height:1.2}.card-sub{font-size:13px;color:var(--dim);margin-top:2px}
+.card-badges{display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.bar{height:5px;background:#2a261e;border:1px solid var(--line);margin-top:7px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#3e6a2c,#5a8a40)}
+.stamp{display:inline-block;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;padding:2px 6px;border:2px solid currentColor;transform:rotate(-4deg);text-transform:uppercase;white-space:nowrap}
+.stamp.want{color:var(--gold)}.stamp.planned{color:var(--slate)}.stamp.visited{color:var(--moss-hi)}
+.star{color:var(--gold-hi)}
+.empty{text-align:center;color:var(--dim);font-style:italic;padding:40px 10px}
+#mapEl{height:calc(100vh - 300px);min-height:420px;border:1px solid var(--leather);background:#1a1610}
+@media(max-width:699px){#mapEl{height:68vh}}
+#mapEl .leaflet-tile-pane{filter:sepia(.85) saturate(.9) brightness(.9) contrast(1.05) hue-rotate(-8deg)}
+.leaflet-popup-content-wrapper{background:#f0e2c0;color:var(--ink);border-radius:2px;font-family:'Crimson Text',serif}.leaflet-popup-tip{background:#f0e2c0}
+.pop-sub{font-size:13px;color:var(--ink-soft)}.pop button{margin-top:6px;background:#221e17;color:#c8a050;border:1px solid #7a5e28;padding:3px 10px;cursor:pointer}
+.pin{width:32px;height:32px;border-radius:50%;background:#14110c;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,.6)}
+.pin.visited{border-color:#8fb872}.pin.planned{border-color:#6a8aa0}.pin.must{box-shadow:0 0 0 3px rgba(232,200,120,.5),0 2px 6px rgba(0,0,0,.6)}
+.map-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.pp-sum{text-align:center;font-family:'Cinzel',serif;color:var(--gold);letter-spacing:1px;margin-bottom:16px}
+.pp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.pp{background:linear-gradient(180deg,#f5e6c8,#e0cea0);color:var(--ink);border:3px solid var(--leather);padding:14px;text-align:center;cursor:pointer}
+.pp h4{font-family:'Cinzel',serif;margin:6px 0}.pp .stamp{font-size:13px;transform:rotate(-8deg)}.pp .stamp.want{color:#8a6d1e}.pp .stamp.planned{color:#3d5f78}.pp .stamp.visited{color:#2f5a1e}.pp .muted{color:var(--ink-soft)}
+.modal-overlay{position:fixed;inset:0;background:rgba(6,5,3,.84);display:flex;align-items:flex-start;justify-content:center;padding:30px 12px;overflow-y:auto;z-index:50}
+.modal{background:linear-gradient(180deg,#f5e6c8,#e0cea0);color:var(--ink);max-width:600px;width:100%;border:3px solid var(--leather);padding:22px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+.modal h2{font-family:'Cinzel',serif;text-transform:uppercase;letter-spacing:2px;font-size:19px;margin:0 0 12px}
+.x{position:absolute;top:8px;right:12px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--ink-soft)}
+.f{display:flex;flex-direction:column;gap:10px}.f label{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-soft);display:block;margin-bottom:2px}
+.f input[type=text],.f input[type=url],.f input[type=number],.f select,.f textarea{width:100%;font-size:16px;padding:7px 9px;border:1px solid var(--ps);background:#fbf6e8;color:var(--ink)}
+.f textarea{min-height:64px;resize:vertical}.fr{display:flex;gap:10px}.fr>div{flex:1;min-width:0}
+@media(max-width:480px){.fr{flex-direction:column}}
+.f .btn{background:#221e17}.f .btn.ghost{background:transparent;color:var(--ink-soft);border-color:var(--ink-soft)}
+.lk{background:#fbf6e8;border:1px solid var(--ps);max-height:170px;overflow:auto;margin-top:6px}.lk div{padding:6px 8px;cursor:pointer;font-size:14px;border-bottom:1px solid #e0d2ae}.lk div:hover{background:#f0e2c0}
+.status-line{font-style:italic;font-size:14px;color:var(--ink-soft);min-height:18px}
+.prev{width:70px;height:50px;object-fit:cover;border:1px solid var(--ps)}
+.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}.actions .del{margin-right:auto}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);max-width:90vw;background:#2f4a22;color:#e8f2dc;border:1px solid #5a8a40;padding:9px 16px;z-index:100;font-size:15px}.toast.bad{background:#5c2a1e;color:#fbe9e2;border-color:#e08a75}
+</style>
+</head>
+<body>
+<div id="userBar" class="user-bar" hidden>
+  <span><span class="dot"></span> Connected · <span id="codeLabel"></span></span>
+  <button id="btnRefresh" class="user-link">↻ Refresh</button>
+  <button id="btnBackup" class="user-link">⬇ Backup</button>
+  <button id="btnDisconnect" class="user-link">Switch code</button>
+</div>
+<div id="toast" class="toast" hidden></div>
+
+<div id="authOverlay" class="modal-overlay" hidden>
+  <div class="modal" style="max-width:420px">
+    <h2>Connect your ledger</h2>
+    <p class="status-line" style="margin-top:-6px">Use the same code on every device — and share it with a travel companion to share the atlas. No password.</p>
+    <label style="font-family:'Cinzel',serif;font-size:11px;text-transform:uppercase">Your code</label>
+    <div style="display:flex;gap:8px;margin:6px 0">
+      <div id="genCode" style="flex:1;font-family:'Cinzel',serif;font-size:20px;letter-spacing:3px;background:#fbf6e8;border:1px solid var(--ps);padding:9px;text-align:center"></div>
+      <button type="button" class="btn ghost" id="btnCopy" style="color:var(--ink-soft);border-color:var(--ink-soft)">Copy</button>
+    </div>
+    <div class="actions"><button type="button" class="btn ghost" id="btnRegen" style="color:var(--ink-soft);border-color:var(--ink-soft)">Another</button><button type="button" class="btn" id="btnUseGen" style="background:#221e17">Use this code</button></div>
+    <hr style="border:none;border-top:1px dashed var(--ps);margin:16px 0">
+    <form id="formCode" class="f"><label>I already have a code</label>
+      <input type="text" id="codeIn" placeholder="e.g. BKCX-WH5H" style="text-transform:uppercase;text-align:center;letter-spacing:2px">
+      <div class="actions"><button class="btn" style="background:#221e17">Connect</button></div></form>
+  </div>
+</div>
+
+<div class="app">
+  <header class="app-header"><h1>The Journey</h1><p class="subtitle">a traveller's ledger of lands, cities and wonders</p></header>
+  <nav class="main-tabs">
+    <button class="main-tab active" data-tab="atlas">🧭 Atlas</button>
+    <button class="main-tab" data-tab="map">🗺️ Map</button>
+    <button class="main-tab" data-tab="passport">🛂 Passport</button>
+  </nav>
+  <div id="filters" class="filters">
+    <div class="filters-top">
+      <input type="search" id="fQ" placeholder="🔍 Search lands, cities, places…">
+      <button type="button" id="btnFilters" class="btn ghost only-mobile">Filters</button>
+      <button type="button" id="btnAdd" class="btn btn-add-top">+ Add</button>
+    </div>
+    <div class="filters-body">
+      <select id="fType"></select><select id="fTag"></select>
+      <select id="fStatus"><option value="">Any status</option><option value="want">Wishlist</option><option value="planned">Planned</option><option value="visited">Visited</option></select>
+      <label><input type="checkbox" id="fMust"> ⭐ Must-see</label>
+      <select id="fSort"><option value="priority">Must-see first</option><option value="az">A–Z</option><option value="recent">Recently added</option><option value="status">Status</option></select>
+      <button type="button" id="btnClear" class="btn ghost sm">Clear</button>
+    </div>
+  </div>
+  <div id="layout" class="layout">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main style="min-width:0">
+      <section id="tab-atlas"><div id="atlas"></div></section>
+      <section id="tab-map" hidden><div id="mapBar" class="map-bar"></div><div id="mapEl"></div></section>
+      <section id="tab-passport" hidden><div id="passport"></div></section>
+    </main>
+  </div>
+</div>
+<button type="button" class="fab" id="fab" aria-label="Add">+</button>
+
+<div id="modalForm" class="modal-overlay" hidden>
+  <div class="modal">
+    <button class="x" type="button" data-close>&times;</button>
+    <h2 id="formTitle">New entry</h2>
+    <form id="formEntry" class="f">
+      <input type="hidden" id="fId">
+      <div class="fr">
+        <div><label>Type of entry</label><select id="eKind"><option value="country">Country</option><option value="city">City</option><option value="place">Place</option></select></div>
+        <div id="eParentWrap"><label id="eParentLabel">Belongs to</label><select id="eParent"></select></div>
+      </div>
+      <div><label>Name</label><input type="text" id="eName" required placeholder="e.g. Louvre Museum"></div>
+      <div><button type="button" class="btn sm" id="btnLookup">🔎 Look up address, photo &amp; info</button>
+        <div class="status-line" id="lkStatus"></div><div class="lk" id="lkRes" hidden></div></div>
+      <div id="eAddrWrap"><label>Address</label><input type="text" id="eAddress"></div>
+      <div class="fr"><div><label>Latitude</label><input type="number" id="eLat" step="any"></div><div><label>Longitude</label><input type="number" id="eLng" step="any"></div></div>
+      <div><label>Or paste a full Google Maps link</label>
+        <div style="display:flex;gap:6px"><input type="url" id="eMaps" placeholder="https://www.google.com/maps/place/…"><button type="button" class="btn sm" id="btnMaps">Import</button></div></div>
+      <div class="fr"><div><label>Photo link</label><input type="url" id="ePhoto" placeholder="https://… (Drive share links work)"></div><div style="flex:0 0 76px"><label>&nbsp;</label><img id="ePrev" class="prev" alt="" hidden></div></div>
+      <div><label>Information</label><textarea id="eInfo"></textarea></div>
+      <div class="fr"><div class="only-place"><label>Category</label><select id="eType"></select></div><div><label>Tags (comma separated)</label><input type="text" id="eTags" placeholder="romantic, free, rainy-day"></div></div>
+      <div class="fr"><div><label>Status</label><select id="eStatus"><option value="want">Wishlist</option><option value="planned">Planned</option><option value="visited">Visited</option></select></div>
+        <div><label>&nbsp;</label><label style="text-transform:none;font-size:16px"><input type="checkbox" id="eMust"> ⭐ Must-see</label></div></div>
+      <div class="fr only-place"><div><label>Opening hours</label><input type="text" id="eHours"></div><div><label>Price</label><input type="text" id="ePrice"></div><div><label>Visit time (h)</label><input type="number" id="eDur" step="0.5" min="0"></div></div>
+      <div class="fr"><div><label>Best season</label><input type="text" id="eSeason"></div><div><label>Website</label><input type="url" id="eSite"></div></div>
+      <div><label>Links — one per line: Label | URL (reservations, docs in your Drive…)</label><textarea id="eLinks"></textarea></div>
+      <div class="actions"><button type="button" class="btn danger del" id="btnDel" hidden>Delete</button><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn">Save</button></div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var SUPABASE_URL='https://cfdzwduajsatbydphrtq.supabase.co';
+var SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZHp3ZHVhanNhdGJ5ZHBocnRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzQ2MDIsImV4cCI6MjA5MzQxMDYwMn0.zUB9rASXCXxKVJFfvXrfcMCivQ3fPV4AE0Jvo4hCamQ';
+var TABLE='journey_nodes',CODE_KEY='thejourney_sync_code',CACHE='thejourney_cache_';
+var sb=null;try{if(window.supabase)sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}catch(e){}
+var TYPES={museum:['🏛️','Museum'],park:['🌳','Park'],landscape:['🏞️','Landscape'],monument:['🗿','Monument'],religious:['⛪','Religious site'],castle:['🏰','Castle / Palace'],beach:['🏖️','Beach'],viewpoint:['🔭','Viewpoint'],food:['🍽️','Food & drink'],neighborhood:['🏘️','Neighborhood'],activity:['🎟️','Activity'],other:['📍','Other']};
+var STAT={want:'Wishlist',planned:'Planned',visited:'Visited'},SORDER={planned:0,want:1,visited:2};
+var code=null,tt;
+var S={nodes:[],by:{},kids:{},nav:null,tab:'atlas',scope:'countries',mode:'cities',mapAll:false,open:{},map:null,layer:null,tok:0,f:{q:'',type:'',tag:'',status:'',must:false,sort:'priority'}};
+function $(i){return document.getElementById(i);}
+function esc(s){return s==null?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function uid(){return 'j_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);}
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function safe(u){u=String(u||'').trim();return /^https?:\/\//i.test(u)?u:'';}
+function normPhoto(u){u=String(u||'').trim();var m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/)||u.match(/drive\.google\.com\/(?:open|uc)\?(?:[^#]*&)?id=([\w-]+)/);return m?'https://lh3.googleusercontent.com/d/'+m[1]:u;}
+function toast(m,bad){var e=$('toast');e.textContent=(bad?'⚠️ ':'')+m;e.className='toast'+(bad?' bad':'');e.hidden=false;clearTimeout(tt);tt=setTimeout(function(){e.hidden=true;},bad?8000:2500);}
+document.addEventListener('error',function(e){if(e.target&&e.target.tagName==='IMG'&&e.target.hasAttribute('data-hide'))e.target.style.display='none';},true);
+
+/* ---------- data ---------- */
+function fromRow(r){var n=function(v){return v==null?null:Number(v);};return{id:r.id,kind:r.kind,parentId:r.parent_id||'',name:r.name,photo:r.photo||'',info:r.info||'',address:r.address||'',lat:n(r.lat),lng:n(r.lng),type:r.type||'',tags:r.tags?r.tags.split(',').map(function(t){return t.trim();}).filter(Boolean):[],status:r.status||'want',must:!!r.must,pois:Array.isArray(r.pois)?r.pois:[],links:Array.isArray(r.links)?r.links:[],hours:r.hours||'',price:r.price||'',durationH:n(r.duration_h),season:r.season||'',website:r.website||'',addedAt:r.added_at?new Date(r.added_at).getTime():Date.now()};}
+function toRow(n){return{id:n.id,sync_code:code,kind:n.kind,parent_id:n.parentId||null,name:n.name,photo:n.photo||null,info:n.info||null,address:n.address||null,lat:n.lat,lng:n.lng,type:n.type||null,tags:(n.tags||[]).join(', ')||null,status:n.status,must:!!n.must,pois:n.pois||[],links:n.links||[],hours:n.hours||null,price:n.price||null,duration_h:n.durationH,season:n.season||null,website:n.website||null,added_at:new Date(n.addedAt||Date.now()).toISOString()};}
+function reindex(){S.by={};S.kids={};S.nodes.forEach(function(n){S.by[n.id]=n;});S.nodes.forEach(function(n){var p=n.parentId&&S.by[n.parentId]?n.parentId:'';(S.kids[p]=S.kids[p]||[]).push(n);});}
+function cacheNow(){try{localStorage.setItem(CACHE+code,JSON.stringify(S.nodes));}catch(e){}}
+function loadCache(){try{S.nodes=JSON.parse(localStorage.getItem(CACHE+code)||'[]');}catch(e){S.nodes=[];}}
+function fail(e){toast('Not synced: '+((e&&e.message)||'network error')+(e&&/journey_nodes/.test(e.message||'')?' — run journey-setup.sql in Supabase.':''),true);}
+function loadAll(){
+  if(!sb){loadCache();reindex();renderAll();toast('Offline — showing saved copy.',true);return;}
+  sb.from(TABLE).select('*').eq('sync_code',code).then(function(r){
+    if(r.error){fail(r.error);loadCache();}else{S.nodes=(r.data||[]).map(fromRow);cacheNow();}
+    reindex();renderAll();
+  },function(e){fail(e);loadCache();reindex();renderAll();});
+}
+function saveNode(n){cacheNow();if(!sb)return;sb.from(TABLE).upsert(toRow(n),{onConflict:'id'}).then(function(r){if(r.error)fail(r.error);},fail);}
+function delIds(ids){cacheNow();if(!sb)return;sb.from(TABLE).delete().in('id',ids).eq('sync_code',code).then(function(r){if(r.error)fail(r.error);},fail);}
+
+/* ---------- helpers ---------- */
+function desc(id){var o=[],st=(S.kids[id]||[]).slice(),n;while(st.length){n=st.pop();o.push(n);(S.kids[n.id]||[]).forEach(function(c){st.push(c);});}return o;}
+function path(n){var p=[],c=n;while(c){p.unshift(c);c=c.parentId?S.by[c.parentId]:null;}return p;}
+function ctx(n){return path(n).slice(0,-1).reverse().map(function(p){return p.name;}).join(' · ');}
+function placesIn(n){return n.kind==='place'?[n]:desc(n.id).filter(function(x){return x.kind==='place';});}
+function icon(n){return n.kind==='country'?'🌍':n.kind==='city'?'🏙️':(TYPES[n.type]||TYPES.other)[0];}
+function has(k){return S.nodes.some(function(n){return n.kind===k;});}
+function az(a,b){return a.name.localeCompare(b.name);}
+function plural(n,s,p){return n+' '+(n===1?s:p);}
+function hasF(){var f=S.f;return !!(f.q||f.type||f.tag||f.status||f.must);}
+function matchSelf(n){var f=S.f;
+  if(f.q&&norm([n.name,n.address,n.info,(n.tags||[]).join(' '),n.kind==='place'?(TYPES[n.type]||TYPES.other)[1]:''].join(' ')).indexOf(norm(f.q))<0)return false;
+  if(f.type&&!(n.kind==='place'&&n.type===f.type))return false;
+  if(f.tag&&n.tags.indexOf(f.tag)<0)return false;
+  if(f.status&&n.status!==f.status)return false;
+  if(f.must&&!n.must)return false;return true;}
+function matches(n){if(!hasF()||matchSelf(n))return true;return n.kind!=='place'&&desc(n.id).some(matchSelf);}
+function sortList(a){var s=S.f.sort;return a.slice().sort(function(x,y){
+  if(s==='az')return az(x,y);if(s==='recent')return y.addedAt-x.addedAt;
+  if(s==='status')return (SORDER[x.status]-SORDER[y.status])||az(x,y);
+  return ((y.must?1:0)-(x.must?1:0))||az(x,y);});}
+function listFor(){
+  var cur=S.nav?S.by[S.nav]:null;
+  if(!cur){var k=S.scope==='countries'?'country':S.scope==='cities'?'city':'place';return S.nodes.filter(function(n){return n.kind===k&&matches(n);});}
+  if(cur.kind==='country')return S.mode==='places'?desc(cur.id).filter(function(n){return n.kind==='place'&&matches(n);}):(S.kids[cur.id]||[]).filter(function(n){return n.kind==='city'&&matches(n);});
+  if(cur.kind==='city')return (S.kids[cur.id]||[]).filter(function(n){return n.kind==='place'&&matches(n);});
+  return [];}
+function gmaps(n){var q=n.lat!=null&&n.lng!=null?n.lat+','+n.lng:encodeURIComponent(n.name+' '+ctx(n));return 'https://www.google.com/maps/search/?api=1&query='+q;}
+
+/* ---------- navigation ---------- */
+function switchTab(t){S.tab=t;['atlas','map','passport'].forEach(function(x){$('tab-'+x).hidden=x!==t;});
+  document.querySelectorAll('.main-tab').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-tab')===t);});renderAll();}
+function navigate(id){S.nav=id&&S.by[id]?id:null;S.mapAll=false;if(S.tab!=='atlas')switchTab('atlas');else renderAll();window.scrollTo(0,0);}
+function renderAll(){
+  refreshFilters();$('filters').hidden=S.tab==='passport';$('layout').classList.toggle('no-side',S.tab!=='atlas');
+  if(S.tab==='atlas'){renderSidebar();renderAtlas();}else if(S.tab==='map')renderMap();else renderPassport();}
+
+function refreshFilters(){
+  var tc={},gc={};S.nodes.forEach(function(n){if(n.kind==='place'&&n.type)tc[n.type]=(tc[n.type]||0)+1;n.tags.forEach(function(t){gc[t]=(gc[t]||0)+1;});});
+  if(!tc[S.f.type])S.f.type='';if(!gc[S.f.tag])S.f.tag='';
+  $('fType').innerHTML='<option value="">All categories</option>'+Object.keys(TYPES).filter(function(k){return tc[k];}).map(function(k){return '<option value="'+k+'">'+TYPES[k][0]+' '+TYPES[k][1]+' ('+tc[k]+')</option>';}).join('');
+  $('fTag').innerHTML='<option value="">All tags</option>'+Object.keys(gc).sort().map(function(t){return '<option value="'+esc(t)+'">#'+esc(t)+' ('+gc[t]+')</option>';}).join('');
+  $('fType').value=S.f.type;$('fTag').value=S.f.tag;}
+
+function renderSidebar(){
+  var onp={};if(S.nav&&S.by[S.nav])path(S.by[S.nav]).forEach(function(n){onp[n.id]=1;});
+  function row(n,d,cnt,open,canOpen){return '<div class="tree-line" style="padding-left:'+d*14+'px"><button class="chev" data-toggle="'+n.id+'">'+(canOpen?(open?'▾':'▸'):'')+'</button><button class="tree-row'+(S.nav===n.id?' active':'')+'" data-nav="'+n.id+'"><span>'+icon(n)+' '+esc(n.name)+'</span><span class="cnt">'+cnt+'</span></button></div>';}
+  var h='<div class="side-title">The Atlas</div><div class="tree-line"><button class="chev"></button><button class="tree-row'+(S.nav===null?' active':'')+'" data-nav="">🌍 World <span class="cnt">'+S.nodes.filter(function(n){return n.kind==='place';}).length+'</span></button></div>';
+  S.nodes.filter(function(n){return n.kind==='country';}).sort(az).forEach(function(c){
+    var cities=(S.kids[c.id]||[]).filter(function(x){return x.kind==='city';}).sort(az),o=S.open[c.id]||onp[c.id];
+    h+=row(c,0,placesIn(c).length,o,cities.length>0);
+    if(o)cities.forEach(function(ci){var pl=(S.kids[ci.id]||[]).filter(function(x){return x.kind==='place';}).sort(az),o2=S.open[ci.id]||onp[ci.id];
+      h+=row(ci,1,pl.length,o2,pl.length>0);if(o2)pl.forEach(function(p){h+=row(p,2,'',false,false);});});});
+  $('sidebar').innerHTML=h;}
+
+function stamp(n){return '<span class="stamp '+n.status+'">'+STAT[n.status]+'</span>';}
+function cardSub(n){
+  if(n.kind==='country')return plural((S.kids[n.id]||[]).length,'city','cities')+' · '+plural(placesIn(n).length,'place','places');
+  if(n.kind==='city')return ctx(n)+' · '+plural(placesIn(n).length,'place','places');
+  return (TYPES[n.type]||TYPES.other)[1]+(ctx(n)?' · '+ctx(n):'');}
+function card(n){
+  var ph=safe(n.photo),pl=n.kind!=='place'?placesIn(n):[],bar='';
+  if(pl.length){var v=pl.filter(function(p){return p.status==='visited';}).length;bar='<div class="bar" title="'+v+' of '+pl.length+' visited"><i style="width:'+Math.round(v/pl.length*100)+'%"></i></div>';}
+  return '<div class="card" data-open="'+n.id+'"><div class="card-img"><div class="ph">'+icon(n)+'</div>'+(ph?'<img data-hide src="'+esc(ph)+'" loading="lazy" referrerpolicy="no-referrer" alt="">':'')+'</div><div class="card-body"><div class="card-title">'+esc(n.name)+'</div><div class="card-sub">'+esc(cardSub(n))+'</div><div class="card-badges">'+stamp(n)+(n.must?'<span class="star">⭐</span>':'')+'</div>'+bar+'</div></div>';}
+
+function hero(n){
+  var ph=safe(n.photo),h='<section class="hero"><div class="hero-img"><div class="ph">'+icon(n)+'</div>'+(ph?'<img data-hide src="'+esc(ph)+'" referrerpolicy="no-referrer" alt="">':'')+'</div><div class="hero-body">';
+  h+='<div class="kindlabel">'+(n.kind==='place'?'Place · '+(TYPES[n.type]||TYPES.other)[1]:n.kind==='city'?'City':'Country')+(ctx(n)?' · '+esc(ctx(n)):'')+'</div><h2>'+esc(n.name)+(n.must?' <span class="star">⭐</span>':'')+'</h2>';
+  if(n.tags.length)h+='<div class="chips">'+n.tags.map(function(t){return '<span class="chip">#'+esc(t)+'</span>';}).join('')+'</div>';
+  h+='<div class="row"><div class="seg" style="margin:0">'+['want','planned','visited'].map(function(s){return '<button data-act="status" data-val="'+s+'" class="'+(n.status===s?'on':'')+'">'+STAT[s]+'</button>';}).join('')+'</div><button class="btn sm ghost" data-act="must">'+(n.must?'⭐ Must-see':'☆ Must-see')+'</button></div>';
+  if(n.address)h+='<div class="addr">📍 '+esc(n.address)+'</div>';
+  else if(n.kind==='place'&&n.lat==null)h+='<div class="hint">No location yet — Edit → “Look up” to place it on the map.</div>';
+  h+='<div class="row"><button class="btn sm" data-act="edit">✏️ Edit</button>'+(n.lat!=null?'<button class="btn sm ghost" data-act="showmap">🗺️ On map</button>':'')+'<a class="btn sm ghost" style="text-decoration:none" target="_blank" rel="noopener" href="'+esc(gmaps(n))+'">Google Maps ↗</a>'+(safe(n.website)?'<a class="btn sm ghost" style="text-decoration:none" target="_blank" rel="noopener" href="'+esc(safe(n.website))+'">Website ↗</a>':'')+(n.kind!=='place'?'<button class="btn sm moss" data-act="addchild">+ '+(n.kind==='country'?'City':'Place')+'</button>':'')+'</div>';
+  if(n.info)h+='<div class="info">'+esc(n.info)+'</div>';
+  var facts=[];if(n.kind==='place'){if(n.hours)facts.push(['Hours',n.hours]);if(n.price)facts.push(['Price',n.price]);if(n.durationH!=null)facts.push(['Visit time',n.durationH+' h']);}
+  if(n.season)facts.push(['Best season',n.season]);
+  if(facts.length)h+='<div class="facts">'+facts.map(function(f){return '<div class="fact"><small>'+f[0]+'</small>'+esc(f[1])+'</div>';}).join('')+'</div>';
+  var done=n.pois.filter(function(p){return p.done;}).length,ex=n.kind==='place'?'a specific artwork, room, dish…':n.kind==='city'?'a neighborhood, market, day trip…':'a region, route, tradition…';
+  h+='<div class="block"><h3>Points of interest '+(n.pois.length?'<span class="muted">('+done+'/'+n.pois.length+')</span>':'')+'</h3><ul class="pois">'+n.pois.map(function(p,i){return '<li><label><input type="checkbox" data-poi="'+i+'"'+(p.done?' checked':'')+'><span class="'+(p.done?'done':'')+'">'+esc(p.t)+'</span></label><button data-act="delpoi" data-i="'+i+'" title="Remove">✕</button></li>';}).join('')+'</ul><form class="inline-add" id="poiForm"><input id="poiIn" placeholder="Add: '+ex+'"><button class="btn sm">Add</button></form></div>';
+  var lk=n.links.filter(function(l){return safe(l.url);});
+  if(lk.length)h+='<div class="block"><h3>Links</h3>'+lk.map(function(l){return '<a class="linkbtn" target="_blank" rel="noopener" href="'+esc(safe(l.url))+'">📎 '+esc(l.label||'Link')+'</a>';}).join('')+'</div>';
+  return h+'</div></section>';}
+
+function renderAtlas(){
+  var el=$('atlas'),cur=S.nav?S.by[S.nav]:null,h='';
+  if(!S.nodes.length){el.innerHTML='<p class="empty">Your atlas is empty.<br>Press “+ Add” to chart your first country.</p>';return;}
+  h+='<nav class="crumbs"><button data-crumb="">World</button>'+(cur?path(cur).map(function(p){return ' › '+(p===cur?'<b>'+esc(p.name)+'</b>':'<button data-crumb="'+p.id+'">'+esc(p.name)+'</button>');}).join(''):'')+'</nav>';
+  if(!cur)h+='<div class="seg">'+[['countries','🌍 Countries'],['cities','🏙️ Cities'],['places','📍 Places']].map(function(s){return '<button data-scope="'+s[0]+'" class="'+(S.scope===s[0]?'on':'')+'">'+s[1]+'</button>';}).join('')+'</div>';
+  else h+=hero(cur);
+  if(!cur||cur.kind!=='place'){
+    var items=sortList(listFor());
+    h+='<div class="list-head">'+(cur&&cur.kind==='country'?'<div class="seg" style="margin:0"><button data-mode="cities" class="'+(S.mode==='cities'?'on':'')+'">Cities</button><button data-mode="places" class="'+(S.mode==='places'?'on':'')+'">All places</button></div>':cur?'<h3>Places in '+esc(cur.name)+'</h3>':'<span></span>')+'<span class="muted">'+items.length+' shown</span></div>';
+    h+=items.length?'<div class="cards">'+items.map(card).join('')+'</div>':'<p class="empty">'+(hasF()?'Nothing matches these filters.':'Nothing here yet. Press “+ Add”.')+'</p>';}
+  el.innerHTML=h;}
+
+/* ---------- atlas events ---------- */
+$('atlas').addEventListener('click',function(e){
+  var t=e.target.closest('[data-act],[data-open],[data-scope],[data-mode],[data-crumb]');if(!t)return;
+  if(t.hasAttribute('data-open'))return navigate(t.getAttribute('data-open'));
+  if(t.hasAttribute('data-crumb'))return navigate(t.getAttribute('data-crumb'));
+  if(t.hasAttribute('data-scope')){S.scope=t.getAttribute('data-scope');return renderAtlas();}
+  if(t.hasAttribute('data-mode')){S.mode=t.getAttribute('data-mode');return renderAtlas();}
+  var n=S.by[S.nav];if(!n)return;var a=t.getAttribute('data-act');
+  if(a==='status'){n.status=t.getAttribute('data-val');}
+  else if(a==='must'){n.must=!n.must;}
+  else if(a==='edit')return openForm(n);
+  else if(a==='addchild')return openForm(null,{kind:n.kind==='country'?'city':'place',parentId:n.id});
+  else if(a==='showmap'){S.mapAll=false;return switchTab('map');}
+  else if(a==='delpoi'){n.pois.splice(+t.getAttribute('data-i'),1);}
+  else return;
+  saveNode(n);renderAll();});
+$('atlas').addEventListener('change',function(e){var i=e.target.getAttribute&&e.target.getAttribute('data-poi');if(i==null)return;var n=S.by[S.nav];if(!n||!n.pois[i])return;n.pois[i].done=e.target.checked;saveNode(n);renderAll();});
+$('atlas').addEventListener('submit',function(e){if(e.target.id!=='poiForm')return;e.preventDefault();var v=$('poiIn').value.trim(),n=S.by[S.nav];if(!v||!n)return;n.pois.push({t:v,done:false});saveNode(n);renderAll();$('poiIn').focus();});
+$('sidebar').addEventListener('click',function(e){var t=e.target.closest('[data-toggle],[data-nav]');if(!t)return;
+  if(t.hasAttribute('data-toggle')){var id=t.getAttribute('data-toggle');if(!id)return;S.open[id]=!S.open[id];return renderSidebar();}
+  navigate(t.getAttribute('data-nav'));});
+document.querySelectorAll('.main-tab').forEach(function(b){b.addEventListener('click',function(){switchTab(b.getAttribute('data-tab'));});});
+$('fQ').addEventListener('input',function(){S.f.q=this.value.trim();renderAll();});
+[['fType','type'],['fTag','tag'],['fStatus','status'],['fSort','sort']].forEach(function(p){$(p[0]).addEventListener('change',function(){S.f[p[1]]=this.value;renderAll();});});
+$('fMust').addEventListener('change',function(){S.f.must=this.checked;renderAll();});
+$('btnClear').addEventListener('click',function(){S.f={q:'',type:'',tag:'',status:'',must:false,sort:S.f.sort};$('fQ').value='';$('fStatus').value='';$('fMust').checked=false;renderAll();});
+$('btnFilters').addEventListener('click',function(){$('filters').classList.toggle('open');});
+
+/* ---------- map ---------- */
+function renderMap(){
+  var bar=$('mapBar');
+  if(!window.L){$('mapEl').innerHTML='<p class="empty">Map library could not load (offline?).</p>';return;}
+  if(!S.map){S.map=L.map('mapEl').setView([20,0],2);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(S.map);S.layer=L.layerGroup().addTo(S.map);}
+  S.map.invalidateSize();S.layer.clearLayers();
+  var cur=S.nav&&!S.mapAll?S.by[S.nav]:null,pool=cur?[cur].concat(desc(cur.id)):S.nodes,pts=[],miss=0;
+  pool.forEach(function(n){if(n.kind==='country'||!matchSelf(n))return;if(n.lat==null||n.lng==null){miss++;return;}
+    var m=L.marker([n.lat,n.lng],{icon:L.divIcon({className:'',html:'<div class="pin '+n.status+(n.must?' must':'')+'">'+icon(n)+'</div>',iconSize:[32,32],iconAnchor:[16,16]})});
+    var box=document.createElement('div');box.className='pop';box.innerHTML='<strong>'+esc(n.name)+'</strong><div class="pop-sub">'+esc(cardSub(n))+'</div><button type="button">Open</button>';
+    box.querySelector('button').addEventListener('click',function(){navigate(n.id);});m.bindPopup(box).addTo(S.layer);pts.push([n.lat,n.lng]);});
+  if(pts.length)S.map.fitBounds(L.latLngBounds(pts).pad(.2),{maxZoom:13});else S.map.setView([20,0],2);
+  bar.innerHTML='<span class="muted">'+plural(pts.length,'pin','pins')+(miss?' · '+miss+' without location':'')+(cur?' · scope: '+esc(cur.name):'')+'</span>'+(cur?'<button class="btn sm ghost" id="btnAllMap">Show everything</button>':'');
+  var b=$('btnAllMap');if(b)b.addEventListener('click',function(){S.mapAll=true;renderMap();});}
+
+/* ---------- passport ---------- */
+function renderPassport(){
+  var cs=S.nodes.filter(function(n){return n.kind==='country';}).sort(az),pl=S.nodes.filter(function(n){return n.kind==='place';});
+  var v=pl.filter(function(p){return p.status==='visited';}).length;
+  $('passport').innerHTML=!cs.length?'<p class="empty">No stamps yet — add a country to start your passport.</p>':
+    '<div class="pp-sum">'+plural(cs.length,'country','countries')+' · '+plural(S.nodes.filter(function(n){return n.kind==='city';}).length,'city','cities')+' · '+plural(pl.length,'place','places')+' · '+v+' visited</div><div class="pp-grid">'+cs.map(function(c){var p=placesIn(c),pv=p.filter(function(x){return x.status==='visited';}).length;
+      return '<div class="pp" data-open="'+c.id+'"><div style="font-size:34px">'+icon(c)+'</div><h4>'+esc(c.name)+'</h4>'+stamp(c)+'<div class="muted" style="margin-top:8px">'+pv+' of '+p.length+' places visited</div></div>';}).join('')+'</div>';}
+$('passport').addEventListener('click',function(e){var t=e.target.closest('[data-open]');if(t)navigate(t.getAttribute('data-open'));});
+
+/* ---------- form ---------- */
+function fillParents(kind,sel){
+  var w=$('eParentWrap'),s=$('eParent');w.hidden=kind==='country';$('eAddrWrap').hidden=kind==='country';
+  document.querySelectorAll('.only-place').forEach(function(x){x.hidden=kind!=='place';});
+  if(kind==='country')return;
+  var pk=kind==='city'?'country':'city';$('eParentLabel').textContent=kind==='city'?'Country':'City';
+  var list=S.nodes.filter(function(n){return n.kind===pk;}).sort(az);
+  s.innerHTML=list.length?list.map(function(n){return '<option value="'+n.id+'">'+esc(n.name+(pk==='city'&&ctx(n)?' · '+ctx(n):''))+'</option>';}).join(''):'<option value="">— create the '+pk+' first —</option>';
+  if(sel&&S.by[sel])s.value=sel;}
+function openForm(n,def){
+  def=def||{};S.tok++;var kind=n?n.kind:(def.kind||'country');
+  if(!n){if(kind==='place'&&!has('city'))kind=has('country')?'city':'country';if(kind==='city'&&!has('country'))kind='country';}
+  $('formTitle').textContent=n?'Edit entry':'New entry';$('eKind').value=kind;$('eKind').disabled=!!n;$('fId').value=n?n.id:'';
+  $('eType').innerHTML=Object.keys(TYPES).map(function(k){return '<option value="'+k+'">'+TYPES[k][0]+' '+TYPES[k][1]+'</option>';}).join('');
+  fillParents(kind,n?n.parentId:def.parentId);
+  var g=function(k,d){return n&&n[k]!=null?n[k]:d;};
+  $('eName').value=g('name','');$('eAddress').value=g('address','');$('eLat').value=g('lat','');$('eLng').value=g('lng','');$('eMaps').value='';
+  $('ePhoto').value=g('photo','');$('eInfo').value=g('info','');$('eType').value=g('type','')||'other';$('eTags').value=n?n.tags.join(', '):'';
+  $('eStatus').value=g('status','want');$('eMust').checked=!!(n&&n.must);$('eHours').value=g('hours','');$('ePrice').value=g('price','');$('eDur').value=g('durationH','');
+  $('eSeason').value=g('season','');$('eSite').value=g('website','');$('eLinks').value=n?n.links.map(function(l){return l.label+' | '+l.url;}).join('\n'):'';
+  $('lkStatus').textContent='';$('lkRes').hidden=true;$('btnDel').hidden=!n;prev();$('modalForm').hidden=false;}
+function closeForm(){$('modalForm').hidden=true;S.tok++;}
+function prev(){var u=safe(normPhoto($('ePhoto').value)),p=$('ePrev');p.hidden=!u;if(u){p.style.display='';p.setAttribute('data-hide','');p.referrerPolicy='no-referrer';p.src=u;}}
+$('ePhoto').addEventListener('input',prev);
+$('eKind').addEventListener('change',function(){fillParents(this.value,'');});
+$('btnAdd').addEventListener('click',function(){openForm(null,addDefaults());});$('fab').addEventListener('click',function(){openForm(null,addDefaults());});
+function addDefaults(){var c=S.nav?S.by[S.nav]:null;
+  if(!c)return{kind:S.scope==='countries'?'country':S.scope==='cities'?'city':'place'};
+  if(c.kind==='country')return S.mode==='places'?{kind:'place'}:{kind:'city',parentId:c.id};
+  if(c.kind==='city')return{kind:'place',parentId:c.id};return{kind:'place',parentId:c.parentId};}
+$('modalForm').addEventListener('click',function(e){if(e.target.hasAttribute('data-close')||e.target===this)closeForm();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeForm();});
+
+function numOrNull(v,a,b){var x=parseFloat(String(v).replace(',','.'));return isFinite(x)&&(a==null||(x>=a&&x<=b))?x:null;}
+$('formEntry').addEventListener('submit',function(e){
+  e.preventDefault();var id=$('fId').value,kind=$('eKind').value,name=$('eName').value.trim();if(!name)return;
+  var par=kind==='country'?'':$('eParent').value;if(kind!=='country'&&!par){alert('Choose where it belongs (create the parent first).');return;}
+  var n=id?S.by[id]:{id:uid(),addedAt:Date.now(),pois:[],links:[]};
+  n.kind=kind;n.parentId=par;n.name=name;n.address=kind==='country'?'':$('eAddress').value.trim();n.lat=numOrNull($('eLat').value,-90,90);n.lng=numOrNull($('eLng').value,-180,180);
+  if(n.lat==null||n.lng==null){n.lat=null;n.lng=null;}
+  n.photo=normPhoto($('ePhoto').value);n.info=$('eInfo').value.trim();n.type=kind==='place'?$('eType').value:'';
+  n.tags=$('eTags').value.split(',').map(function(t){return t.trim().toLowerCase();}).filter(function(t,i,a){return t&&a.indexOf(t)===i;});
+  n.status=$('eStatus').value;n.must=$('eMust').checked;n.hours=$('eHours').value.trim();n.price=$('ePrice').value.trim();n.durationH=numOrNull($('eDur').value);
+  n.season=$('eSeason').value.trim();n.website=$('eSite').value.trim();
+  n.links=$('eLinks').value.split('\n').map(function(l){var p=l.split('|'),u=safe((p.length>1?p.slice(1).join('|'):p[0]));return u?{label:(p.length>1?p[0].trim():'')||u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0],url:u}:null;}).filter(Boolean);
+  if(!id){S.nodes.push(n);if(S.nav===null)S.scope=kind==='country'?'countries':kind==='city'?'cities':'places';else if(S.by[S.nav]&&S.by[S.nav].kind==='country'&&kind==='place')S.mode='places';}
+  reindex();saveNode(n);closeForm();renderAll();toast('Saved');});
+$('btnDel').addEventListener('click',function(){var n=S.by[$('fId').value];if(!n)return;var d=desc(n.id);
+  if(!confirm('Delete "'+n.name+'"'+(d.length?' and its '+d.length+' nested entries':'')+'?'))return;
+  var ids=[n.id].concat(d.map(function(x){return x.id;})),back=n.parentId;S.nodes=S.nodes.filter(function(x){return ids.indexOf(x.id)<0;});reindex();delIds(ids);
+  if(S.nav&&!S.by[S.nav])S.nav=S.by[back]?back:null;closeForm();renderAll();});
+
+/* ---------- lookups (free, no key) ---------- */
+function lookup(auto){
+  var name=$('eName').value.trim(),st=$('lkStatus'),res=$('lkRes');if(!name){if(!auto)st.textContent='Type a name first.';return;}
+  var tok=++S.tok,par=S.by[$('eParent').value],trail=par?path(par).reverse().map(function(p){return p.name;}):[];
+  st.textContent='Searching…';res.hidden=true;
+  var nom=fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=en&q='+encodeURIComponent([name].concat(trail).join(', '))).then(function(r){if(!r.ok)throw 0;return r.json();}).catch(function(){return null;});
+  var wq=name+(trail[0]?' '+trail[0]:'');
+  var wiki=fetch('https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=1&gsrsearch='+encodeURIComponent(wq)+'&prop=pageimages|extracts&piprop=thumbnail&pithumbsize=900&exintro=1&explaintext=1&exsentences=5').then(function(r){return r.json();}).then(function(d){var p=d&&d.query&&d.query.pages;return p?p[Object.keys(p)[0]]:null;}).catch(function(){return null;});
+  Promise.all([nom,wiki]).then(function(r){
+    if(tok!==S.tok)return;var list=r[0]||[],w=r[1],msg=[];
+    if(w){var ph=w.thumbnail&&w.thumbnail.source;
+      if(ph&&(!$('ePhoto').value||(!auto&&confirm('Replace the current photo with the one found?')))){$('ePhoto').value=ph;prev();msg.push('photo');}
+      if(w.extract&&(!$('eInfo').value||(!auto&&confirm('Replace the current information text?')))){$('eInfo').value=w.extract;msg.push('info');}}
+    if(list.length){res.innerHTML=list.map(function(x,i){return '<div data-i="'+i+'">'+esc(x.display_name)+'</div>';}).join('');res.hidden=false;
+      res.onclick=function(ev){var d=ev.target.closest('[data-i]');if(!d)return;var x=list[+d.getAttribute('data-i')];$('eLat').value=(+x.lat).toFixed(6);$('eLng').value=(+x.lon).toFixed(6);if($('eKind').value!=='country')$('eAddress').value=x.display_name;res.hidden=true;st.textContent='Location set.';};
+      msg.push('pick a location below');}
+    st.textContent=msg.length?'Found: '+msg.join(', ')+'.':'Nothing found — fill in manually (address, coordinates, photo link).';});}
+$('btnLookup').addEventListener('click',function(){lookup(false);});
+$('eName').addEventListener('change',function(){if(!$('fId').value&&!$('eLat').value&&this.value.trim())lookup(true);});
+$('btnMaps').addEventListener('click',function(){
+  var u=$('eMaps').value.trim(),st=$('lkStatus'),la,ln,m;
+  if(/goo\.gl|maps\.app/.test(u)){st.textContent='Short links can’t be read — open it, then paste the full address from the browser bar.';return;}
+  m=u.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);if(m){la=m[1];ln=m[2];}
+  m=u.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);if(m){la=m[1];ln=m[2];}
+  m=u.match(/[?&](?:q|query|ll)=(-?\d+\.\d+),(-?\d+\.\d+)/);if(m&&!la){la=m[1];ln=m[2];}
+  if(!la){st.textContent='No coordinates found in that link.';return;}
+  $('eLat').value=la;$('eLng').value=ln;m=u.match(/\/place\/([^\/@?]+)/);
+  if(m&&!$('eName').value.trim()){try{$('eName').value=decodeURIComponent(m[1].replace(/\+/g,' '));}catch(x){}}
+  st.textContent='Coordinates imported.';});
+
+/* ---------- auth / utils ---------- */
+var CH='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+function genCode(){function p(){var s='';for(var i=0;i<4;i++)s+=CH[Math.floor(Math.random()*CH.length)];return s;}return p()+'-'+p();}
+function regen(){$('genCode').textContent=genCode();}regen();
+$('btnRegen').addEventListener('click',regen);
+$('btnCopy').addEventListener('click',function(){if(navigator.clipboard)navigator.clipboard.writeText($('genCode').textContent);toast('Copied');});
+$('btnUseGen').addEventListener('click',function(){connect($('genCode').textContent);});
+$('formCode').addEventListener('submit',function(e){e.preventDefault();var c=$('codeIn').value.trim().toUpperCase();if(c)connect(c);});
+$('btnDisconnect').addEventListener('click',function(){if(!confirm('Disconnect this device from the code? You can reconnect any time.'))return;localStorage.removeItem(CODE_KEY);code=null;S.nodes=[];S.nav=null;reindex();$('authOverlay').hidden=false;$('userBar').hidden=true;regen();});
+$('btnRefresh').addEventListener('click',loadAll);
+$('btnBackup').addEventListener('click',function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({exported:new Date().toISOString(),nodes:S.nodes},null,2)],{type:'application/json'}));a.download='the-journey-backup.json';document.body.appendChild(a);a.click();a.remove();});
+function connect(c){code=c;localStorage.setItem(CODE_KEY,c);$('authOverlay').hidden=true;$('userBar').hidden=false;$('codeLabel').textContent=c;loadAll();}
+var saved=localStorage.getItem(CODE_KEY);if(saved)connect(saved);else $('authOverlay').hidden=false;
+})();
+</script>
+</body>
+</html>
