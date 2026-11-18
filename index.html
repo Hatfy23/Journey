@@ -91,7 +91,7 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
 /* trips (timeline) */
 .trip{max-width:760px;margin:0 auto}
 .t-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:10px;align-items:center}
-.t-top select{background:var(--panel2);color:var(--text);border:1px solid var(--leather);padding:6px 8px;max-width:60%}
+.t-top select{background:var(--panel2);color:var(--text);border:1px solid var(--leather);padding:6px 8px;max-width:60%;min-width:170px}
 .t-head{display:flex;gap:14px;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
 .t-head h2{font-family:'Cinzel',serif;color:var(--gold-hi);margin:0;font-size:28px;font-weight:600}
 .t-dates{margin:4px 0 8px}
@@ -137,6 +137,10 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
 .prev{width:70px;height:50px;object-fit:cover;border:1px solid var(--ps)}
 .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}.actions .del{margin-right:auto}
 .toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);max-width:90vw;background:#2f4a22;color:#e8f2dc;border:1px solid #5a8a40;padding:9px 16px;z-index:100;font-size:15px}.toast.bad{background:#5c2a1e;color:#fbe9e2;border-color:#e08a75}
+.pick{display:flex;gap:6px}.pick input{flex:1;min-width:0}
+.f input[type=time]{width:100%;font-size:16px;padding:7px 9px;border:1px solid var(--ps);background:#fbf6e8;color:var(--ink)}
+.f .tzin{margin-top:6px;font-size:14px}
+.ev.lay{cursor:default;padding-bottom:12px}.ev.lay .ev-ic{background:var(--bg);border:2px solid #3a3325;font-size:15px}.ev.lay .ev-sub{padding-top:9px}
 </style>
 </head>
 <body>
@@ -223,12 +227,12 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
         <div><label>Stamp — image link, emoji or short text</label><input type="text" id="eStamp" placeholder="https://…/stamp.png   or   🥨   or   BERLIN"></div>
         <div class="fr" style="margin-top:8px"><div><label>Ink color</label><input type="color" id="eStampColor" value="#8a2f1e"></div><div><label>Visited on</label><input type="text" id="eVisited" placeholder="May 2025"></div></div>
       </div>
-      <details class="more"><summary>More details</summary>
+      <details class="more" id="eMore"><summary>More details</summary>
         <div class="f">
           <div class="fr"><div><label>Latitude</label><input type="number" id="eLat" step="any"></div><div><label>Longitude</label><input type="number" id="eLng" step="any"></div></div>
           <div><label>Or paste a full Google Maps link</label><div style="display:flex;gap:6px"><input type="url" id="eMaps" placeholder="https://www.google.com/maps/place/…"><button type="button" class="btn sm" id="btnMaps">Import</button></div></div>
           <div class="fr"><div><label>Tags (comma separated)</label><input type="text" id="eTags" placeholder="romantic, free"></div><div><label>&nbsp;</label><label style="text-transform:none;font-size:16px"><input type="checkbox" id="eMust"> ⭐ Must-see</label></div></div>
-          <div class="fr only-place"><div><label>🕒 Opening hours</label><input type="text" id="eHours"></div><div><label>💶 Price</label><input type="text" id="ePrice"></div><div><label>⏳ Visit time (h)</label><input type="number" id="eDur" step="0.5" min="0"></div></div>
+          <div class="fr only-place"><div><label>🕒 Opening hours</label><input type="text" id="eHours"></div><div><label>💶 Price</label><input type="text" id="ePrice"></div><div><label>⏳ Visit time (h)</label><input type="number" id="eDur" step="0.5" min="0"><div class="status-line" id="eDurHint"></div></div></div>
           <div class="fr"><div><label>🌤️ Best season</label><input type="text" id="eSeason"></div><div><label>🌐 Website</label><input type="url" id="eSite"></div></div>
           <div><label>🔗 Links — one per line: Label | URL</label><textarea id="eLinks"></textarea></div>
         </div>
@@ -244,19 +248,30 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
     <button class="x" type="button" data-close>&times;</button>
     <h2 id="itTitle">New activity</h2>
     <form id="formItem" class="f">
-      <input type="hidden" id="iNode">
-      <div class="fr"><div><label>Activity type</label><select id="iType"></select></div><div><label>Fill from a saved place</label><select id="iPlace"></select></div></div>
-      <div><label>Event name</label><input type="text" id="iName" required></div>
-      <div class="fr"><div><label>Start date and time</label><input type="datetime-local" id="iStart"></div><div><label>End date and time</label><input type="datetime-local" id="iEnd"></div></div>
-      <div><label>Venue</label><input type="text" id="iVenue"></div>
-      <div><label>Address</label><input type="text" id="iAddr"></div>
-      <div class="fr"><div><label>Phone</label><input type="text" id="iPhone"></div><div><label>Email</label><input type="text" id="iEmail"></div></div>
-      <div><label>Website</label><input type="url" id="iSite"></div>
+      <input type="hidden" id="iNode"><input type="hidden" id="iLat"><input type="hidden" id="iLon">
+      <div><label>Activity type</label><select id="iType"></select><div class="status-line" id="iSt"></div></div>
+      <div data-t="sight,meal,activity,lodging,other"><label id="iNameL">Place</label>
+        <div class="pick"><input type="text" id="iName" placeholder="Search a place, or type a title"><button type="button" class="btn sm" data-pkbtn="iName">🔎</button></div><div class="lk" id="iNameRes" hidden></div></div>
+      <div data-t="sight,meal,activity,lodging,other"><label>Address</label><input type="text" id="iAddr"><label style="margin-top:8px">Time zone (auto from the place)</label><input type="text" id="iTz" class="tzin" list="tzlist" placeholder="e.g. Europe/Berlin"></div>
+      <div data-t="flight,train,bus,ride"><label id="iFromL">From</label>
+        <div class="pick"><input type="text" id="iFrom"><button type="button" class="btn sm" data-pkbtn="iFrom">🔎</button></div><div class="lk" id="iFromRes" hidden></div>
+        <label style="margin-top:8px">Time zone (auto)</label><input type="text" id="iFromTz" class="tzin" list="tzlist" placeholder="e.g. America/Fortaleza"></div>
+      <div data-t="flight,train,bus,ride"><label id="iToL">To</label>
+        <div class="pick"><input type="text" id="iTo"><button type="button" class="btn sm" data-pkbtn="iTo">🔎</button></div><div class="lk" id="iToRes" hidden></div>
+        <label style="margin-top:8px">Time zone (auto)</label><input type="text" id="iToTz" class="tzin" list="tzlist" placeholder="e.g. Europe/Lisbon"></div>
+      <div class="fr"><div><label id="iStartL">Start</label><input type="datetime-local" id="iStart"></div><div><label id="iEndL">End</label><input type="datetime-local" id="iEnd"></div></div>
+      <div class="fr" data-t="lodging"><div><label>Standard check-in time</label><input type="time" id="iStdIn"></div><div><label>Standard check-out time</label><input type="time" id="iStdOut"></div></div>
+      <div class="fr" data-t="flight,train,bus"><div><label id="iCarL">Airline</label><input type="text" id="iCarrier"></div><div><label id="iNumL">Flight no.</label><input type="text" id="iNumber"></div></div>
+      <div class="fr" data-t="flight,train,bus"><div><label>Seat</label><input type="text" id="iSeat"></div><div><label id="iGateL">Terminal / gate</label><input type="text" id="iGate"></div></div>
       <div class="fr"><div><label>Confirmation</label><input type="text" id="iConf"></div><div><label>Total cost</label><input type="text" id="iCost"></div></div>
       <div><label>Notes</label><textarea id="iNotes"></textarea></div>
       <div><label>Links — one per line: Label | URL (tickets, reservations in your Drive…)</label><textarea id="iLinks"></textarea></div>
+      <details class="more"><summary>Contact</summary><div class="f">
+        <div class="fr"><div><label>Phone</label><input type="text" id="iPhone"></div><div><label>Email</label><input type="text" id="iEmail"></div></div>
+        <div><label>Website</label><input type="url" id="iSite"></div></div></details>
       <div class="actions"><button type="button" class="btn danger del" id="iDel" hidden>Delete</button><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn">Save</button></div>
     </form>
+    <datalist id="tzlist"></datalist>
   </div>
 </div>
 
@@ -281,10 +296,10 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
 var SUPABASE_URL='https://cfdzwduajsatbydphrtq.supabase.co';
 var SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZHp3ZHVhanNhdGJ5ZHBocnRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzQ2MDIsImV4cCI6MjA5MzQxMDYwMn0.zUB9rASXCXxKVJFfvXrfcMCivQ3fPV4AE0Jvo4hCamQ';
 var TABLE='journey_nodes',TRIPS='journey_trips',CODE_KEY='thejourney_sync_code',CACHE='thejourney_cache_',TCACHE='thejourney_trips_';
-var NOM='https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&accept-language=en';
+var NOM='https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&extratags=1&accept-language=en';
 var sb=null;try{if(window.supabase)sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}catch(e){}
 var TYPES={museum:['🏛️','Museum'],park:['🌳','Park'],landscape:['🏞️','Landscape'],monument:['🗿','Monument'],religious:['⛪','Religious site'],castle:['🏰','Castle / Palace'],beach:['🏖️','Beach'],viewpoint:['🔭','Viewpoint'],food:['🍽️','Food & drink'],neighborhood:['🏘️','Neighborhood'],activity:['🎟️','Activity'],other:['📍','Other']};
-var ITYPES={activity:['🎟️','Activity'],flight:['✈️','Flight'],lodging:['🛏️','Lodging'],transport:['🚆','Transport'],walk:['🚶','Transfer / walk'],meal:['🍽️','Meal'],sight:['🏛️','Sightseeing'],other:['📌','Other']};
+var ITYPES={flight:['✈️','Flight'],train:['🚆','Train'],bus:['🚌','Bus'],ride:['🚶','Transfer / walk / taxi'],lodging:['🛏️','Lodging'],sight:['🏛️','Sightseeing'],meal:['🍽️','Meal'],activity:['🎟️','Activity'],other:['📌','Other']};
 var STAT={want:'Wishlist',planned:'Planned',visited:'Visited'},SICON={want:'🔖',planned:'🗓️',visited:'✅'},SORDER={planned:0,want:1,visited:2};
 var code=null,tt;
 var S={nodes:[],by:{},kids:{},trips:[],tripId:null,exp:{},nav:null,tab:'atlas',view:'list',scope:'countries',mode:'cities',mapIds:null,mapAll:false,open:{},map:null,layer:null,tok:0,pend:null,userParent:false,res:[],booted:false,editItem:'',editTrip:'',f:{q:'',type:'',tag:'',status:'',must:false,sort:'priority'}};
@@ -309,12 +324,12 @@ document.addEventListener('error',function(e){if(e.target&&e.target.tagName==='I
 function fromRow(r){var n=function(v){return v==null?null:Number(v);};return{id:r.id,kind:r.kind,parentId:r.parent_id||'',name:r.name,photo:r.photo||'',info:r.info||'',address:r.address||'',lat:n(r.lat),lng:n(r.lng),type:r.type||'',tags:r.tags?r.tags.split(',').map(function(t){return t.trim();}).filter(Boolean):[],status:r.status||'want',must:!!r.must,pois:Array.isArray(r.pois)?r.pois:[],links:Array.isArray(r.links)?r.links:[],hours:r.hours||'',price:r.price||'',durationH:n(r.duration_h),season:r.season||'',website:r.website||'',extra:r.extra&&typeof r.extra==='object'?r.extra:{},addedAt:r.added_at?new Date(r.added_at).getTime():Date.now()};}
 function toRow(n){return{id:n.id,sync_code:code,kind:n.kind,parent_id:n.parentId||null,name:n.name,photo:n.photo||null,info:n.info||null,address:n.address||null,lat:n.lat,lng:n.lng,type:n.type||null,tags:(n.tags||[]).join(', ')||null,status:n.status,must:!!n.must,pois:n.pois||[],links:n.links||[],hours:n.hours||null,price:n.price||null,duration_h:n.durationH,season:n.season||null,website:n.website||null,extra:n.extra||{},added_at:new Date(n.addedAt||Date.now()).toISOString()};}
 function blank(kind,name,parentId){return{id:uid(),kind:kind,parentId:parentId||'',name:name,photo:'',info:'',address:'',lat:null,lng:null,type:'',tags:[],status:'want',must:false,pois:[],links:[],hours:'',price:'',durationH:null,season:'',website:'',extra:{},addedAt:Date.now()};}
-function tripFromRow(r){return{id:r.id,name:r.name,startDate:r.start_date||'',endDate:r.end_date||'',cover:r.cover||'',active:!!r.active,items:Array.isArray(r.items)?r.items:[],addedAt:r.added_at?new Date(r.added_at).getTime():Date.now()};}
+function tripFromRow(r){return{id:r.id,name:r.name,startDate:r.start_date||'',endDate:r.end_date||'',cover:r.cover||'',active:!!r.active,items:(Array.isArray(r.items)?r.items:[]).map(function(i){i.type=nTy(i.type);return i;}),addedAt:r.added_at?new Date(r.added_at).getTime():Date.now()};}
 function reindex(){S.by={};S.kids={};S.nodes.forEach(function(n){S.by[n.id]=n;});S.nodes.forEach(function(n){var p=n.parentId&&S.by[n.parentId]?n.parentId:'';(S.kids[p]=S.kids[p]||[]).push(n);});}
 function cacheNow(){try{localStorage.setItem(CACHE+code,JSON.stringify(S.nodes));}catch(e){}}
 function cacheTrips(){try{localStorage.setItem(TCACHE+code,JSON.stringify(S.trips));}catch(e){}}
 function loadCache(){try{S.nodes=JSON.parse(localStorage.getItem(CACHE+code)||'[]');}catch(e){S.nodes=[];}}
-function loadTripsCache(){try{S.trips=JSON.parse(localStorage.getItem(TCACHE+code)||'[]');}catch(e){S.trips=[];}}
+function loadTripsCache(){try{S.trips=JSON.parse(localStorage.getItem(TCACHE+code)||'[]');S.trips.forEach(function(t){t.items=(t.items||[]).map(function(i){i.type=nTy(i.type);return i;});});}catch(e){S.trips=[];}}
 function fail(e){var m=(e&&e.message)||'network error';toast('Not synced: '+m+(/journey_|column|relation/.test(m)?' — run journey-setup.sql in Supabase.':''),true);}
 function loadAll(){
   function done(){reindex();
@@ -416,7 +431,7 @@ function hero(n){
   h+='<div class="row"><div class="seg" style="margin:0">'+['want','planned','visited'].map(function(s){return '<button data-act="status" data-val="'+s+'" class="'+(n.status===s?'on':'')+'">'+SICON[s]+' '+STAT[s]+'</button>';}).join('')+'</div><button class="btn sm ghost" data-act="must">'+(n.must?'⭐ Must-see':'☆ Must-see')+'</button></div>';
   h+='<div class="row"><button class="btn sm" data-act="edit">✏️ Edit</button>'+(n.lat!=null?'<button class="btn sm ghost" data-act="showmap">🗺️ On map</button>':'')+'<a class="btn sm ghost" target="_blank" rel="noopener" href="'+esc(gmaps(n))+'">Google Maps ↗</a>'+(safe(n.website)?'<a class="btn sm ghost" target="_blank" rel="noopener" href="'+esc(safe(n.website))+'">🌐 Website ↗</a>':'')+(n.kind!=='place'?'<button class="btn sm ghost" data-act="addchild">+ '+(n.kind==='country'?'🏙️ City':'📍 Place')+'</button>':'')+'</div>';
   if(n.info)h+='<div class="info">'+esc(n.info)+'</div>';
-  var facts=[];if(n.kind==='place'){if(n.hours)facts.push('🕒 '+n.hours);if(n.price)facts.push('💶 '+n.price);if(n.durationH!=null)facts.push('⏳ '+n.durationH+' h');}
+  var facts=[];if(n.kind==='place'){if(n.hours)facts.push('🕒 '+n.hours);if(n.price)facts.push('💶 '+n.price);if(n.durationH!=null)facts.push('⏳ '+(n.extra&&n.extra.durEst?'≈':'')+n.durationH+' h');}
   if(n.season)facts.push('🌤️ '+n.season);
   if(facts.length)h+='<div class="facts">'+facts.map(function(f){return '<span>'+esc(f)+'</span>';}).join('')+'</div>';
   var done=n.pois.filter(function(p){return p.done;}).length,ex=n.kind==='place'?'a specific artwork, room, dish…':n.kind==='city'?'a neighborhood, market, day trip…':'a region, route, tradition…';
@@ -505,32 +520,63 @@ $('passport').addEventListener('click',function(e){var t=e.target.closest('[data
 /* ---------- trips ---------- */
 function trip(){return S.trips.filter(function(t){return t.id===S.tripId;})[0]||null;}
 function range(t){var o={weekday:'short',day:'numeric',month:'short',year:'numeric'};if(t.startDate&&t.endDate)return fmtDay(t.startDate,o)+' – '+fmtDay(t.endDate,o);return t.startDate?fmtDay(t.startDate,o):'';}
+function nTy(t){return ITYPES[t]?t:(t==='walk'?'ride':t==='transport'?'train':'other');}
+function isRoute(t){return t==='flight'||t==='train'||t==='bus'||t==='ride';}
+function sTz(it){return isRoute(it.type)?((it.from&&it.from.tz)||''):(it.tz||'');}
+function eTz(it){return isRoute(it.type)?((it.to&&it.to.tz)||''):(it.tz||'');}
+function offMin(tz,ms){try{var s=new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date(ms)),m=s.match(/(\d+)\/(\d+)\/(\d+),? (\d+):(\d+):(\d+)/);return Math.round((Date.UTC(+m[3],+m[1]-1,+m[2],+m[4]%24,+m[5],+m[6])-ms)/6e4);}catch(e){return null;}}
+function toUtc(local,tz){var p=String(local||'').match(/^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)/);if(!p)return 9e15;var g=Date.UTC(+p[1],+p[2]-1,+p[3],+p[4],+p[5]);if(!tz)return g;var o=offMin(tz,g);if(o==null)return g;var u=g-o*6e4,o2=offMin(tz,u);if(o2!=null&&o2!==o)u=g-o2*6e4;return u;}
+function tzLabel(tz,ms){try{var f=new Intl.DateTimeFormat('en',{timeZone:tz,timeZoneName:'shortOffset'}).formatToParts(new Date(ms)).filter(function(p){return p.type==='timeZoneName';})[0];return f?f.value:'';}catch(e){return '';}}
+function fmtDur(min){var h=Math.floor(min/60),m=min%60;return (h?h+' h':'')+(h&&m?' ':'')+((m||!h)?m+' min':'');}
+function pName(p,air){return !p?'':(air&&p.code)?p.code:String(p.name||'').split(',')[0];}
+function itTitle(it){if(isRoute(it.type)){var air=it.type==='flight',a=pName(it.from,air),b=pName(it.to,air);if(a||b)return (a||'?')+' → '+(b||'?');}return it.name||(ITYPES[it.type]||ITYPES.other)[1];}
 function entries(t){var out=[];
-  t.items.forEach(function(it){var sd=it.start?it.start.slice(0,10):'',st=it.start?it.start.slice(11,16):'';
-    if(it.type==='lodging'){if(sd)out.push({d:sd,tm:st,it:it,mode:'in'});if(it.end)out.push({d:it.end.slice(0,10),tm:it.end.slice(11,16),it:it,mode:'out'});if(!sd&&!it.end)out.push({d:'',tm:'',it:it,mode:''});}
-    else out.push({d:sd,tm:st,it:it,mode:''});});
+  t.items.forEach(function(it){
+    var sd=it.start?it.start.slice(0,10):'',st=it.start?it.start.slice(11,16):'',z=sTz(it),ts=it.start?toUtc(it.start,z):9e15;
+    if(it.type==='lodging'){
+      if(sd)out.push({d:sd,tm:st,tzl:z?tzLabel(z,ts):'',ts:ts,it:it,mode:'in'});
+      if(it.end){var te=toUtc(it.end,eTz(it));out.push({d:it.end.slice(0,10),tm:it.end.slice(11,16),tzl:eTz(it)?tzLabel(eTz(it),te):'',ts:te,it:it,mode:'out'});}
+      if(!sd&&!it.end)out.push({d:'',tm:'',tzl:'',ts:9e15,it:it,mode:''});
+    }else out.push({d:sd,tm:st,tzl:(z&&it.start)?tzLabel(z,ts):'',ts:ts,it:it,mode:''});});
+  var fl=out.filter(function(x){return x.it.type==='flight'&&x.d&&x.it.end&&x.it.to&&x.it.to.code;}).sort(function(a,b){return a.ts-b.ts;});
+  for(var i=0;i<fl.length-1;i++){var a=fl[i],b=fl[i+1];
+    if(b.it.from&&b.it.from.code===a.it.to.code){var gap=Math.round((b.ts-toUtc(a.it.end,eTz(a.it)))/6e4);if(gap>0&&gap<1440)out.push({d:a.d,tm:'',tzl:'',ts:a.ts+1,it:a.it,mode:'layover',lay:gap,at:a.it.to.code});}}
   return out;}
 function moreHtml(it){
-  var n=it.nodeId&&S.by[it.nodeId],q=it.address||it.venue||it.name,r=[],act=[];
-  act.push('<a class="btn sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q)+'">📍 Maps</a>');
+  var n=it.nodeId&&S.by[it.nodeId],r=[],act=[],q=it.address||it.name||'';
+  if(isRoute(it.type)){var a=it.from&&it.from.name,b=it.to&&it.to.name;
+    if(it.type==='flight'){if(it.from&&it.to&&it.from.code&&it.to.code)act.push('<a class="btn sm" target="_blank" rel="noopener" href="https://www.google.com/travel/flights?q='+encodeURIComponent('Flights from '+it.from.code+' to '+it.to.code+(it.start?' on '+it.start.slice(0,10):''))+'">🔎 Compare fares</a>');}
+    else if(a&&b){
+      if(it.type!=='ride')act.push('<a class="btn sm" target="_blank" rel="noopener" href="https://www.rome2rio.com/map/'+encodeURIComponent(a.split(',')[0])+'/'+encodeURIComponent(b.split(',')[0])+'">🔎 Compare fares</a>');
+      act.push('<a class="btn sm ghost" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(a)+'&destination='+encodeURIComponent(b)+'&travelmode='+(it.type==='ride'?'walking':'transit')+'">🗺️ Route</a>');}
+  }else if(q)act.push('<a class="btn sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q)+'">📍 Maps</a>');
   var ph=String(it.phone||'').replace(/[^\d+]/g,'');if(ph)act.push('<a class="btn sm ghost" href="tel:'+ph+'">📞 '+esc(it.phone)+'</a>');
   if(safe(it.website))act.push('<a class="btn sm ghost" target="_blank" rel="noopener" href="'+esc(safe(it.website))+'">🌐 Website</a>');
   if(/^[^\s@<>"]+@[^\s@<>"]+$/.test(it.email||''))act.push('<a class="btn sm ghost" href="mailto:'+esc(it.email)+'">✉️ Email</a>');
-  r.push('<div class="row">'+act.join('')+'</div>');
-  if(it.cost)r.push('<div>💰 '+esc(it.cost)+'</div>');
+  if(act.length)r.push('<div class="row">'+act.join('')+'</div>');
+  var det=[];if(it.seat)det.push('💺 Seat '+it.seat);if(it.gate)det.push('🚪 '+it.gate);if(it.cost)det.push('💰 '+it.cost);
+  if(det.length)r.push('<div>'+det.map(esc).join(' · ')+'</div>');
+  if(n){var f=[];if(n.hours)f.push('🕒 '+n.hours);if(n.price)f.push('💶 '+n.price);if(n.durationH!=null)f.push('⏳ '+(n.extra&&n.extra.durEst?'≈':'')+n.durationH+' h');if(f.length)r.push('<div>'+f.map(esc).join(' · ')+'</div>');}
   if(it.notes)r.push('<div class="notes">📝 '+esc(it.notes)+'</div>');
   var lk=(it.links||[]).filter(function(l){return safe(l.url);});
   if(lk.length)r.push('<div>'+lk.map(function(l){return '<a class="linkbtn" target="_blank" rel="noopener" href="'+esc(safe(l.url))+'">📎 '+esc(l.label)+' ↗</a>';}).join('')+'</div>');
   r.push('<div class="row"><button class="btn sm" data-v="edit" data-id="'+it.id+'">✏️ Edit</button>'+(n?'<button class="btn sm ghost" data-v="atlas" data-id="'+n.id+'">🧭 In Atlas</button>':'')+'</div>');
   return '<div class="ev-more">'+r.join('')+'</div>';}
-function evRow(x,t){
-  var it=x.it,ty=ITYPES[it.type]||ITYPES.other,sub=[],end='';
-  if(x.mode==='in')sub.push('Check-in');else if(x.mode==='out')sub.push('Check-out');
-  if(it.venue&&norm(it.venue)!==norm(it.name))sub.push(esc(it.venue));
-  if(!x.mode&&it.end&&x.d&&it.end.slice(0,10)===x.d&&it.end.slice(11,16)!==x.tm)end=it.end.slice(11,16);
-  var h='<div class="ev" data-v="toggle" data-id="'+it.id+'"><div class="ev-time">'+esc(x.tm)+(end?'<small>→ '+end+'</small>':'')+'</div><div class="ev-ic">'+ty[0]+'</div><div class="ev-body"><div class="ev-title">'+esc(it.name)+'</div>';
-  sub.forEach(function(s){h+='<div class="ev-sub">'+(s==='Check-in'||s==='Check-out'?s+(x.tm?': '+x.tm:''):s)+'</div>';});
-  if(it.address)h+='<div class="ev-sub">'+esc(it.address)+'</div>';
+function evRow(x){
+  if(x.mode==='layover')return '<div class="ev lay"><div class="ev-time"></div><div class="ev-ic">⏱️</div><div class="ev-body"><div class="ev-sub"><i>'+fmtDur(x.lay)+' layover in '+esc(x.at)+'</i></div></div></div>';
+  var it=x.it,ty=ITYPES[it.type]||ITYPES.other,sub=[];
+  if(isRoute(it.type)){
+    var car=[it.carrier,it.number].filter(Boolean).join(' '),s0=toUtc(it.start,sTz(it)),s1=it.end?toUtc(it.end,eTz(it)):null;
+    var dur=(s1!=null&&it.start&&sTz(it)&&eTz(it)&&s1>=s0)?fmtDur(Math.round((s1-s0)/6e4)):'';
+    if(car||dur)sub.push(esc(car)+(car&&dur?' · ':'')+dur);
+    if(it.end){var ed=it.end.slice(0,10),lab=eTz(it)?tzLabel(eTz(it),s1):'';sub.push('Arrives '+(ed!==x.d?fmtDay(ed,{weekday:'short',day:'numeric',month:'short'})+' · ':'')+it.end.slice(11,16)+(lab?' '+lab:''));}
+  }else if(it.type==='lodging'){
+    var std=x.mode==='out'?it.stdOut:it.stdIn;sub.push((x.mode==='out'?'Check-out':'Check-in')+(x.tm?' '+x.tm:'')+(std?' · standard '+std:''));if(it.address)sub.push(esc(it.address));
+  }else{
+    if(it.address)sub.push(esc(it.address));
+    if(it.end&&x.d&&it.end.slice(0,10)===x.d&&it.end.slice(11,16)!==x.tm)sub.push('until '+it.end.slice(11,16));}
+  var h='<div class="ev" data-v="toggle" data-id="'+it.id+'"><div class="ev-time">'+esc(x.tm)+(x.tzl?'<small>'+esc(x.tzl)+'</small>':'')+'</div><div class="ev-ic">'+ty[0]+'</div><div class="ev-body"><div class="ev-title">'+esc(itTitle(it))+'</div>';
+  sub.forEach(function(s){h+='<div class="ev-sub">'+s+'</div>';});
   if(it.conf)h+='<div class="ev-conf">🎫 '+esc(it.conf)+'</div>';
   if(S.exp[it.id])h+=moreHtml(it);
   return h+'</div></div>';}
@@ -539,13 +585,13 @@ function renderTrips(){
   if(!t){el.innerHTML=h+'<p class="empty">✈️ No trips yet.<br>Create one with “+ New trip”.</p></div>';return;}
   h+='<div class="t-head"><div><h2>'+esc(t.name)+'</h2><div class="t-dates">'+esc(range(t))+'</div><div class="row" style="margin:0"><button class="btn sm'+(t.active?'':' ghost')+'" data-v="active">📍 '+(t.active?'Traveling now':'Mark as traveling')+'</button><button class="btn sm ghost" data-v="edittrip">✏️ Edit trip</button></div></div>'+(safe(t.cover)?'<img class="t-cover" data-hide src="'+esc(normPhoto(t.cover))+'" referrerpolicy="no-referrer" alt="">':'')+'</div>';
   var es=entries(t),g={},keys=[],td=ymd(new Date());
-  if(!es.length)h+='<p class="empty">Nothing planned yet.<br>Tap <b>+</b> to add your first activity.</p>';
+  if(!t.items.length)h+='<p class="empty">Nothing planned yet.<br>Tap <b>+</b> to add your first activity.</p>';
   es.forEach(function(x){if(!g[x.d]){g[x.d]=[];keys.push(x.d);}g[x.d].push(x);});
   keys.sort(function(a,b){return a===''?1:b===''?-1:(a<b?-1:1);});
   keys.forEach(function(k){
-    g[k].sort(function(a,b){return (a.tm<b.tm?-1:a.tm>b.tm?1:0)||a.it.name.localeCompare(b.it.name);});
+    g[k].sort(function(a,b){return (a.ts-b.ts)||(a.it.name||'').localeCompare(b.it.name||'');});
     var dn=k&&t.startDate?Math.round((pdate(k)-pdate(t.startDate))/864e5)+1:0;
-    h+='<div class="dayhdr'+(k===td?' today':'')+'" '+(k?'data-d="'+k+'"':'')+'><span>'+(k?esc(fmtDay(k,{weekday:'long',day:'numeric',month:'long',year:'numeric'})):'Unscheduled')+(k===td?'<small>Today</small>':dn>=1?'<small>Day '+dn+'</small>':'')+'</span>'+(k?'<button data-v="dmap" data-d="'+k+'" title="Day map">🗺️</button>':'')+'</div><div class="dg">'+g[k].map(function(x){return evRow(x,t);}).join('')+'</div>';});
+    h+='<div class="dayhdr'+(k===td?' today':'')+'" '+(k?'data-d="'+k+'"':'')+'><span>'+(k?esc(fmtDay(k,{weekday:'long',day:'numeric',month:'long',year:'numeric'})):'Unscheduled')+(k===td?'<small>Today</small>':dn>=1?'<small>Day '+dn+'</small>':'')+'</span>'+(k?'<button data-v="dmap" data-d="'+k+'" title="Day map">🗺️</button>':'')+'</div><div class="dg">'+g[k].map(evRow).join('')+'</div>';});
   el.innerHTML=h+'</div>';}
 function scrollToday(){setTimeout(function(){var td=ymd(new Date()),ds=[].slice.call(document.querySelectorAll('.dayhdr[data-d]')).filter(function(e){return e.getAttribute('data-d')>=td;});if(ds[0])ds[0].scrollIntoView();},60);}
 $('trips').addEventListener('click',function(e){
@@ -575,22 +621,78 @@ $('tDel').addEventListener('click',function(){var t=trip();if(!t||!confirm('Dele
   S.trips=S.trips.filter(function(x){return x!==t;});delTrip(t.id);S.tripId=S.trips.length?S.trips[0].id:null;closeModals();renderAll();});
 
 /* activity form */
-function placeOptions(){var h='<option value="">— choose —</option>';
-  S.nodes.filter(function(n){return n.kind==='place';}).sort(function(a,b){return ctx(a).localeCompare(ctx(b))||az(a,b);}).forEach(function(n){h+='<option value="'+n.id+'">'+icon(n)+' '+esc(n.name)+(ctx(n)?' — '+esc(ctx(n)):'')+'</option>';});return h;}
+var AP=null,TZC={};
+function csvLine(s){var o=[],c='',q=false;for(var i=0;i<s.length;i++){var ch=s[i];if(q){if(ch==='"'){if(s[i+1]==='"'){c+='"';i++;}else q=false;}else c+=ch;}else if(ch==='"')q=true;else if(ch===','){o.push(c);c='';}else c+=ch;}o.push(c);return o;}
+function loadAirports(){
+  if(AP)return Promise.resolve(AP);
+  try{var c=localStorage.getItem('thejourney_airports_v1');if(c){AP=c.split('\n').map(function(l){return l.split('\t');});return Promise.resolve(AP);}}catch(e){}
+  return fetch('https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat').then(function(r){if(!r.ok)throw 0;return r.text();}).then(function(txt){
+    var rows=[];txt.split('\n').forEach(function(l){l=l.replace(/\r$/,'');if(!l)return;var f=csvLine(l);if(!/^[A-Z]{3}$/.test(f[4]||'')||!f[11]||f[11]==='\\N'||f[12]!=='airport')return;rows.push([f[4],f[1],f[2],f[3],(+f[6]).toFixed(3),(+f[7]).toFixed(3),f[11]]);});
+    AP=rows;try{localStorage.setItem('thejourney_airports_v1',rows.map(function(r){return r.join('\t');}).join('\n'));}catch(e){}return AP;});}
+function airportSearch(q){var n=norm(q).trim(),up=q.trim().toUpperCase();if(!n)return [];
+  var ex=AP.filter(function(a){return a[0]===up;}),rest=AP.filter(function(a){return a[0]!==up&&norm(a[2]+' '+a[1]+' '+a[3]).indexOf(n)>=0;});
+  rest.sort(function(a,b){return ((norm(b[2]).indexOf(n)===0)-(norm(a[2]).indexOf(n)===0))||((/International/i.test(b[1])?1:0)-(/International/i.test(a[1])?1:0));});
+  return ex.concat(rest).slice(0,8);}
+function getTz(lat,lon){var k=(+lat).toFixed(1)+','+(+lon).toFixed(1);if(TZC[k])return Promise.resolve(TZC[k]);
+  return fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m&timezone=auto').then(function(r){return r.json();}).then(function(d){if(d&&d.timezone){TZC[k]=d.timezone;return d.timezone;}return '';}).catch(function(){return '';});}
+function validTz(v){v=String(v||'').trim();if(!v)return '';try{new Intl.DateTimeFormat('en',{timeZone:v});return v;}catch(e){return '';}}
+(function(){var l;try{l=Intl.supportedValuesOf('timeZone');}catch(e){l=['America/Fortaleza','America/Sao_Paulo','Europe/Lisbon','Europe/Paris','Europe/Berlin','Europe/Madrid','Europe/Rome','Europe/London','America/New_York','Asia/Tokyo','UTC'];}$('tzlist').innerHTML=l.map(function(z){return '<option value="'+z+'">';}).join('');})();
 function defStart(t){var ds=t.items.map(function(i){return i.start?i.start.slice(0,10):'';}).filter(Boolean).sort();var d=ds.length?ds[ds.length-1]:t.startDate;return d?d+'T09:00':'';}
-function openItem(it){var t=trip();if(!t)return;S.editItem=it?it.id:'';$('itTitle').textContent=it?'Edit activity':'New activity';
-  $('iType').innerHTML=Object.keys(ITYPES).map(function(k){return '<option value="'+k+'">'+ITYPES[k][0]+' '+ITYPES[k][1]+'</option>';}).join('');$('iPlace').innerHTML=placeOptions();
-  var g=function(k){return it&&it[k]!=null?it[k]:'';};
-  $('iType').value=it?it.type:'activity';$('iName').value=g('name');$('iStart').value=it?g('start'):defStart(t);$('iEnd').value=g('end');
-  $('iVenue').value=g('venue');$('iAddr').value=g('address');$('iPhone').value=g('phone');$('iEmail').value=g('email');$('iSite').value=g('website');
-  $('iConf').value=g('conf');$('iCost').value=g('cost');$('iNotes').value=g('notes');$('iLinks').value=it?linksTxt(it.links):'';$('iNode').value=g('nodeId');$('iDel').hidden=!it;$('modalItem').hidden=false;}
-$('iPlace').addEventListener('change',function(){var n=S.by[this.value];if(!n)return;
-  $('iName').value=n.name;$('iVenue').value=n.name;$('iAddr').value=n.address||'';if(n.website)$('iSite').value=n.website;$('iNode').value=n.id;$('iType').value=n.type==='food'?'meal':'sight';
-  var s=$('iStart').value;if(s&&n.durationH){var d=new Date(s);if(!isNaN(d))$('iEnd').value=ymdhm(new Date(d.getTime()+n.durationH*36e5));}});
-$('formItem').addEventListener('submit',function(e){e.preventDefault();var t=trip(),name=$('iName').value.trim();if(!t||!name)return;
-  var it=S.editItem?t.items.filter(function(i){return i.id===S.editItem;})[0]:{id:uid()};if(!it)return;
-  it.type=$('iType').value;it.name=name;it.start=$('iStart').value;it.end=$('iEnd').value;it.venue=$('iVenue').value.trim();it.address=$('iAddr').value.trim();it.phone=$('iPhone').value.trim();it.email=$('iEmail').value.trim();
-  it.website=$('iSite').value.trim();it.conf=$('iConf').value.trim();it.cost=$('iCost').value.trim();it.notes=$('iNotes').value.trim();it.links=parseLinks($('iLinks').value);it.nodeId=$('iNode').value;
+function lastTz(t){var best='',bt=-1;t.items.forEach(function(i){var z=eTz(i);if(!z||!i.start)return;var ts=toUtc(i.end||i.start,z);if(ts>bt){bt=ts;best=z;}});return best;}
+var TL={flight:{s:'Departure',e:'Arrival',c:'Airline',n:'Flight no.',g:'Terminal / gate',f:'From (airport)',t:'To (airport)'},train:{s:'Departure',e:'Arrival',c:'Operator',n:'Train no.',g:'Platform',f:'From (station)',t:'To (station)'},bus:{s:'Departure',e:'Arrival',c:'Operator',n:'Line / bus no.',g:'Stop / gate',f:'From',t:'To'},ride:{s:'Departure',e:'Arrival',f:'From',t:'To'},lodging:{s:'Check-in (planned)',e:'Check-out (planned)',p:'Hotel / stay'},meal:{p:'Restaurant / place'},sight:{p:'Place to visit'},activity:{p:'Place or activity'},other:{p:'Title / place'}};
+function applyType(){var ty=$('iType').value,L=TL[ty]||{};
+  document.querySelectorAll('#formItem [data-t]').forEach(function(e){e.hidden=e.getAttribute('data-t').split(',').indexOf(ty)<0;});
+  $('iStartL').textContent=L.s||'Start';$('iEndL').textContent=L.e||'End';$('iNameL').textContent=L.p||'Place';
+  $('iCarL').textContent=L.c||'';$('iNumL').textContent=L.n||'';$('iGateL').textContent=L.g||'';$('iFromL').textContent=L.f||'From';$('iToL').textContent=L.t||'To';
+  $('iFrom').placeholder=ty==='flight'?'City, airport or code (e.g. FOR)':'Station or place';$('iTo').placeholder=$('iFrom').placeholder;}
+function pkRender(p,list){var el=$(p+'Res');S.pr[p]=list;el.innerHTML=list.map(function(o,i){return '<div data-pi="'+i+'" data-p="'+p+'">'+esc(o.row)+'</div>';}).join('');el.hidden=!list.length;}
+function pkSearch(p){
+  var q=$(p).value.trim(),air=$('iType').value==='flight'&&p!=='iName',st=$('iSt');if(!q)return;
+  if(air){loadAirports().then(function(){var l=airportSearch(q).map(function(a){return {row:a[1]+' ('+a[0]+') · '+a[2]+', '+a[3],name:a[1],code:a[0],lat:+a[4],lon:+a[5],tz:a[6],label:a[1]+' ('+a[0]+')'};});pkRender(p,l);st.textContent=l.length?'':'No airport matched — type it and set the time zone manually.';}).catch(function(){st.textContent='Airport list unavailable — type it and set the time zone manually.';});return;}
+  var saved=[];
+  if(p==='iName'){var nq=norm(q);saved=S.nodes.filter(function(n){return n.kind!=='country'&&norm(n.name).indexOf(nq)>=0;}).slice(0,4).map(function(n){return {row:'🧭 '+n.name+(ctx(n)?' — '+ctx(n):'')+' (saved)',name:n.name,address:n.address,lat:n.lat,lon:n.lng,nodeId:n.kind==='place'?n.id:'',website:n.website,label:n.name};});pkRender(p,saved);}
+  st.textContent='Searching…';
+  fetch(NOM+'&limit=6&q='+encodeURIComponent(q)).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(l){
+    var osm=(l||[]).map(function(x){var et=x.extratags||{},nm=x.name||x.display_name.split(',')[0];return {row:x.display_name,name:nm,address:x.display_name,lat:+x.lat,lon:+x.lon,phone:et.phone||et['contact:phone']||'',website:safe(et.website||et['contact:website']),label:nm};});
+    pkRender(p,saved.concat(osm));st.textContent=saved.length+osm.length?'':'Nothing found — type it manually.';
+  }).catch(function(){st.textContent='Search failed — try again or type manually.';});}
+$('formItem').addEventListener('click',function(e){
+  var d=e.target.closest('[data-pi]');
+  if(d){var p=d.getAttribute('data-p'),o=(S.pr[p]||[])[+d.getAttribute('data-pi')];if(!o)return;S.pk[p]=o;$(p).value=o.label;$(p+'Res').hidden=true;
+    var tzId=p==='iName'?'iTz':p==='iFrom'?'iFromTz':'iToTz';
+    if(p==='iName'){$('iAddr').value=o.address||'';$('iLat').value=o.lat==null?'':o.lat;$('iLon').value=o.lon==null?'':o.lon;$('iNode').value=o.nodeId||'';if(o.phone&&!$('iPhone').value)$('iPhone').value=o.phone;if(o.website&&!$('iSite').value)$('iSite').value=o.website;}
+    if(o.tz)$(tzId).value=o.tz;else if(o.lat!=null&&o.lon!=null){$(tzId).value='';getTz(o.lat,o.lon).then(function(z){if(z&&S.pk[p]===o)$(tzId).value=z;});}
+    return;}
+  var b=e.target.closest('[data-pkbtn]');if(b)pkSearch(b.getAttribute('data-pkbtn'));});
+['iName','iFrom','iTo'].forEach(function(p){
+  $(p).addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();pkSearch(p);}});
+  $(p).addEventListener('input',function(){S.pk[p]=null;if(p==='iName')$('iNode').value='';else if($('iType').value==='flight'&&AP&&this.value.trim().length>=2)pkSearch(p);});
+  $(p).addEventListener('focus',function(){if($('iType').value==='flight'&&p!=='iName')loadAirports().catch(function(){});});});
+$('iType').addEventListener('change',applyType);
+function openItem(it){var t=trip();if(!t)return;S.editItem=it?it.id:'';S.pk={iName:null,iFrom:null,iTo:null};S.pr={};
+  $('itTitle').textContent=it?'Edit activity':'New activity';
+  $('iType').innerHTML=Object.keys(ITYPES).map(function(k){return '<option value="'+k+'">'+ITYPES[k][0]+' '+ITYPES[k][1]+'</option>';}).join('');
+  var g=function(k){return it&&it[k]!=null?it[k]:'';},lt=lastTz(t),f=it&&it.from,to=it&&it.to;
+  var pl=function(o){return o?o.name+(o.code&&o.name.indexOf(o.code)<0?' ('+o.code+')':''):'';};
+  $('iType').value=it?it.type:'activity';
+  $('iName').value=g('name');$('iAddr').value=g('address');$('iLat').value=g('lat');$('iLon').value=g('lon');$('iNode').value=g('nodeId');$('iTz').value=it?g('tz'):lt;
+  S.pk.iFrom=f||null;S.pk.iTo=to||null;
+  $('iFrom').value=pl(f);$('iFromTz').value=f?(f.tz||''):(it?'':lt);$('iTo').value=pl(to);$('iToTz').value=to?(to.tz||''):'';
+  $('iStart').value=it?g('start'):defStart(t);$('iEnd').value=g('end');$('iStdIn').value=g('stdIn');$('iStdOut').value=g('stdOut');
+  $('iCarrier').value=g('carrier');$('iNumber').value=g('number');$('iSeat').value=g('seat');$('iGate').value=g('gate');
+  $('iConf').value=g('conf');$('iCost').value=g('cost');$('iPhone').value=g('phone');$('iEmail').value=g('email');$('iSite').value=g('website');
+  $('iNotes').value=g('notes');$('iLinks').value=it?linksTxt(it.links):'';
+  document.querySelectorAll('#formItem .lk').forEach(function(e){e.hidden=true;});$('iSt').textContent='';$('iDel').hidden=!it;applyType();$('modalItem').hidden=false;}
+$('formItem').addEventListener('submit',function(e){e.preventDefault();var t=trip();if(!t)return;
+  var ty=$('iType').value,rt=isRoute(ty),it=S.editItem?t.items.filter(function(i){return i.id===S.editItem;})[0]:{id:uid()};if(!it)return;
+  function pt(p,tz,air){var tx=$(p).value.trim();if(!tx)return null;var s=S.pk[p]||{};return {name:s.name||tx,code:s.code||(air&&/^[A-Za-z]{3}$/.test(tx)?tx.toUpperCase():''),tz:validTz($(tz).value),lat:s.lat==null?null:s.lat,lon:s.lon==null?null:s.lon};}
+  if(rt){var a=pt('iFrom','iFromTz',ty==='flight'),b=pt('iTo','iToTz',ty==='flight');if(!a||!b){alert('Fill in both From and To.');return;}it.from=a;it.to=b;it.name='';it.address='';it.lat=null;it.lon=null;it.nodeId='';it.tz='';}
+  else{var nm=$('iName').value.trim();if(!nm){alert('Add a place or a title.');return;}it.name=nm;it.address=$('iAddr').value.trim();it.lat=numOrNull($('iLat').value,-90,90);it.lon=numOrNull($('iLon').value,-180,180);it.nodeId=$('iNode').value;it.tz=validTz($('iTz').value);it.from=null;it.to=null;}
+  var car=ty==='flight'||ty==='train'||ty==='bus';
+  it.type=ty;it.start=$('iStart').value;it.end=$('iEnd').value;it.stdIn=ty==='lodging'?$('iStdIn').value:'';it.stdOut=ty==='lodging'?$('iStdOut').value:'';
+  it.carrier=car?$('iCarrier').value.trim():'';it.number=car?$('iNumber').value.trim():'';it.seat=car?$('iSeat').value.trim():'';it.gate=car?$('iGate').value.trim():'';
+  it.conf=$('iConf').value.trim();it.cost=$('iCost').value.trim();it.phone=$('iPhone').value.trim();it.email=$('iEmail').value.trim();it.website=$('iSite').value.trim();
+  it.notes=$('iNotes').value.trim();it.links=parseLinks($('iLinks').value);
   if(!S.editItem)t.items.push(it);saveTrip(t);closeModals();renderTrips();});
 $('iDel').addEventListener('click',function(){var t=trip();if(!t||!confirm('Delete this activity?'))return;t.items=t.items.filter(function(i){return i.id!==S.editItem;});saveTrip(t);closeModals();renderTrips();});
 
@@ -625,7 +727,7 @@ function openForm(n,def){
   $('eStatus').value=g('status','want');$('eMust').checked=!!(n&&n.must);$('eHours').value=g('hours','');$('ePrice').value=g('price','');$('eDur').value=g('durationH','');
   $('eSeason').value=g('season','');$('eSite').value=g('website','');$('eLinks').value=n?linksTxt(n.links):'';
   $('eStamp').value=x.stamp||'';$('eStampColor').value=/^#[0-9a-f]{6}$/i.test(x.stampColor||'')?x.stampColor:'#8a2f1e';$('eVisited').value=x.visitedOn||'';
-  $('lkStatus').textContent='';$('lkRes').hidden=true;$('btnDel').hidden=!n;prev();$('modalForm').hidden=false;}
+  S.durEst=!!x.durEst;durHint();$('eMore').open=false;$('lkStatus').textContent='';$('lkRes').hidden=true;$('btnDel').hidden=!n;prev();$('modalForm').hidden=false;}
 function closeModals(){['modalForm','modalItem','modalTrip'].forEach(function(i){$(i).hidden=true;});S.tok++;}
 function prev(){var u=safe(normPhoto($('ePhoto').value)),p=$('ePrev');p.hidden=!u;if(u){p.style.display='';p.setAttribute('data-hide','');p.referrerPolicy='no-referrer';p.src=u;}}
 $('ePhoto').addEventListener('input',prev);
@@ -636,11 +738,26 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModals(
 function numOrNull(v,a,b){var x=parseFloat(String(v).replace(',','.'));return isFinite(x)&&(a==null||(x>=a&&x<=b))?x:null;}
 function ensure(kind,name,parentId){var f=S.nodes.filter(function(n){return n.kind===kind&&n.parentId===parentId&&norm(n.name)===norm(name);})[0];if(f)return f;var n=blank(kind,name,parentId);S.nodes.push(n);reindex();saveNode(n);setTimeout(function(){autoFill(n);},1300);return n;}
 function makeParents(kind,p){if(!p.country||(kind==='place'&&!p.city))return '';var co=ensure('country',p.country,'');return kind==='city'?co.id:ensure('city',p.city,co.id).id;}
-function wikiGet(q){return fetch('https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=1&gsrsearch='+encodeURIComponent(q)+'&prop=pageimages|extracts&piprop=thumbnail&pithumbsize=900&exintro=1&explaintext=1&exsentences=5').then(function(r){return r.json();}).then(function(d){var p=d&&d.query&&d.query.pages;return p?p[Object.keys(p)[0]]:null;}).catch(function(){return null;});}
+var WD='https://www.wikidata.org/w/api.php',DURS={museum:2.5,park:1.5,landscape:1.5,monument:1,religious:1,castle:2,beach:3,viewpoint:.5,food:1.5,neighborhood:2,activity:2,other:1};
+function jget(u){return fetch(u).then(function(r){if(!r.ok)throw 0;return r.json();});}
+function brief(t,n){t=String(t||'').replace(/\s*\([^)]*\)/g,'').replace(/\s+/g,' ').trim();if(t.length<=n)return t;var c=t.slice(0,n),i=Math.max(c.lastIndexOf('. '),c.lastIndexOf('! '));return i>60?c.slice(0,i+1):c.replace(/\s+\S*$/,'')+'…';}
+function cap(s){s=String(s||'').trim();return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
+function claim(j,p){var c=j&&j.claims&&j.claims[p],v=c&&c[0]&&c[0].mainsnak&&c[0].mainsnak.datavalue;return v?v.value:'';}
+function wdFind(name,x){var q=x&&x.extratags&&x.extratags.wikidata;if(q)return Promise.resolve(q);
+  return jget(WD+'?action=wbsearchentities&format=json&origin=*&language=en&limit=1&search='+encodeURIComponent(name)).then(function(d){return d.search&&d.search[0]?d.search[0].id:'';}).catch(function(){return '';});}
+function wdFacts(id){if(!id)return Promise.resolve({});var b=WD+'?format=json&origin=*&';
+  return Promise.all([jget(b+'action=wbgetentities&props=descriptions&languages=en&ids='+id),jget(b+'action=wbgetclaims&property=P18&entity='+id),jget(b+'action=wbgetclaims&property=P856&entity='+id)]).then(function(r){
+    var e=r[0].entities&&r[0].entities[id],img=claim(r[1],'P18'),site=claim(r[2],'P856');
+    return {desc:e&&e.descriptions&&e.descriptions.en?e.descriptions.en.value:'',img:typeof img==='string'&&img?'https://commons.wikimedia.org/wiki/Special:FilePath/'+encodeURIComponent(img)+'?width=900':'',site:typeof site==='string'?site:''};}).catch(function(){return {};});}
+function wvBrief(q){return jget('https://en.wikivoyage.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=1&gsrsearch='+encodeURIComponent(q)+'&prop=extracts|pageimages&exintro=1&explaintext=1&exsentences=3&piprop=thumbnail&pithumbsize=900').then(function(d){var p=d&&d.query&&d.query.pages;p=p?p[Object.keys(p)[0]]:null;return p?{text:brief(p.extract,230),img:p.thumbnail?p.thumbnail.source:''}:{};}).catch(function(){return {};});}
+function enrich(kind,name,ctxName,x){
+  return wdFind(name,x).then(wdFacts).then(function(f){
+    if(kind==='place')return {info:f.desc?brief(cap(f.desc)+'.',200):'',photo:f.img,site:f.site};
+    return wvBrief(name+(kind==='city'&&ctxName?' '+ctxName:'')).then(function(w){return {info:w.text||(f.desc?cap(f.desc)+'.':''),photo:w.img||f.img,site:f.site};});});}
 function autoFill(n){var par=n.parentId&&S.by[n.parentId];
   fetch(NOM+'&limit=1&q='+encodeURIComponent(n.name+(par?', '+par.name:''))+(n.kind==='country'?'&featuretype=country':n.kind==='city'?'&featuretype=city':'')).then(function(r){return r.json();}).then(function(l){
-    if(l&&l[0]&&n.lat==null){n.lat=+l[0].lat;n.lng=+l[0].lon;}return wikiGet(n.name+(par?' '+par.name:''));}).then(function(w){
-    if(w){if(w.thumbnail&&!n.photo)n.photo=w.thumbnail.source;if(w.extract&&!n.info)n.info=w.extract;}saveNode(n);renderAll();}).catch(function(){});}
+    var x=l&&l[0];if(x&&n.lat==null){n.lat=+x.lat;n.lng=+x.lon;}return enrich(n.kind,n.name,par&&par.name,x);}).then(function(e){
+    if(e.photo&&!n.photo)n.photo=e.photo;if(e.info&&!n.info)n.info=e.info;if(e.site&&!n.website&&n.kind==='place')n.website=e.site;saveNode(n);renderAll();}).catch(function(){});}
 $('formEntry').addEventListener('submit',function(e){
   e.preventDefault();var id=$('fId').value,kind=$('eKind').value,name=$('eName').value.trim();if(!name)return;
   var par=kind==='country'?'':$('eParent').value;
@@ -655,7 +772,7 @@ $('formEntry').addEventListener('submit',function(e){
   n.tags=$('eTags').value.split(',').map(function(t){return t.trim().toLowerCase();}).filter(function(t,i,a){return t&&a.indexOf(t)===i;});
   n.status=$('eStatus').value;n.must=$('eMust').checked;n.hours=$('eHours').value.trim();n.price=$('ePrice').value.trim();n.durationH=numOrNull($('eDur').value);
   n.season=$('eSeason').value.trim();n.website=$('eSite').value.trim();n.links=parseLinks($('eLinks').value);
-  if(kind==='country')n.extra={stamp:$('eStamp').value.trim(),stampColor:$('eStampColor').value,visitedOn:$('eVisited').value.trim()};
+  if(kind==='country')n.extra={stamp:$('eStamp').value.trim(),stampColor:$('eStampColor').value,visitedOn:$('eVisited').value.trim()};else n.extra=Object.assign({},n.extra||{},{durEst:!!(S.durEst&&n.durationH!=null)});
   if(!id){S.nodes.push(n);if(S.tab==='atlas'){S.nav=null;S.view='list';S.scope=kind==='country'?'countries':kind==='city'?'cities':'places';}}
   reindex();saveNode(n);closeModals();renderAll();toast('Saved — '+n.name);});
 $('btnDel').addEventListener('click',function(){var n=S.by[$('fId').value];if(!n)return;var d=desc(n.id);
@@ -663,7 +780,9 @@ $('btnDel').addEventListener('click',function(){var n=S.by[$('fId').value];if(!n
   var ids=[n.id].concat(d.map(function(x){return x.id;})),back=n.parentId;S.nodes=S.nodes.filter(function(x){return ids.indexOf(x.id)<0;});reindex();delIds(ids);
   if(S.nav&&!S.by[S.nav])S.nav=S.by[back]?back:null;closeModals();renderAll();});
 
-/* ---------- search inside the form (free: Nominatim + Wikipedia) ---------- */
+/* ---------- search inside the form (free: OpenStreetMap + Wikidata + Wikivoyage) ---------- */
+function durHint(){$('eDurHint').textContent=S.durEst&&$('eDur').value?'≈ estimated from the category — adjust if you know better.':'';}
+$('eDur').addEventListener('input',function(){S.durEst=false;durHint();});
 function searchEntry(){
   var kind=$('eKind').value,name=$('eName').value.trim(),st=$('lkStatus'),res=$('lkRes');if(!name){st.textContent='Type a name first.';return;}
   var tok=++S.tok,trail=[];
@@ -677,15 +796,24 @@ function searchEntry(){
 $('btnSearch').addEventListener('click',searchEntry);
 $('eName').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();searchEntry();}});
 $('lkRes').addEventListener('click',function(ev){
-  var d=ev.target.closest('[data-i]');if(!d)return;var x=S.res[+d.getAttribute('data-i')];if(!x)return;var kind=$('eKind').value;
+  var d=ev.target.closest('[data-i]');if(!d)return;var x=S.res[+d.getAttribute('data-i')];if(!x)return;var kind=$('eKind').value,et=x.extratags||{},filled=[];
   $('eName').value=x.name||$('eName').value;$('eLat').value=(+x.lat).toFixed(6);$('eLng').value=(+x.lon).toFixed(6);
-  if(kind!=='country')$('eAddress').value=x.display_name;if(kind==='place')$('eType').value=inferGuess(x);
+  if(kind!=='country')$('eAddress').value=x.display_name;
+  if(kind==='place'){var gt=inferGuess(x),site=et.website||et['contact:website']||'';$('eType').value=gt;
+    if(site&&!/^https?:/i.test(site))site='https://'+site;
+    if(safe(site)&&!$('eSite').value){$('eSite').value=site;filled.push('website');}
+    if(et.opening_hours&&!$('eHours').value){$('eHours').value=String(et.opening_hours).slice(0,160);filled.push('hours');}
+    var pr=et.charge?String(et.charge).slice(0,80):(et.fee==='no'?'Free':'');if(pr&&!$('ePrice').value){$('ePrice').value=pr;filled.push('price');}
+    if(!$('eDur').value){$('eDur').value=DURS[gt]||1;S.durEst=true;durHint();filled.push('visit time (≈)');}
+    if(filled.length)$('eMore').open=true;}
   if(kind!=='country'&&!S.userParent){S.pend=pendOf(x);fillParents(kind,'',true,S.pend);}
-  $('lkRes').hidden=true;$('lkStatus').textContent='Filled in — fetching photo & info…';
-  var tok=S.tok;wikiGet($('eName').value+(S.pend&&S.pend.city?' '+S.pend.city:'')).then(function(w){if(tok!==S.tok)return;var m=[];
-    if(w&&w.thumbnail&&!$('ePhoto').value){$('ePhoto').value=w.thumbnail.source;prev();m.push('photo');}
-    if(w&&w.extract&&!$('eInfo').value){$('eInfo').value=w.extract;m.push('info');}
-    $('lkStatus').textContent='Filled in'+(m.length?' (+ '+m.join(' & ')+' from Wikipedia)':'')+'. Review and save.';});});
+  $('lkRes').hidden=true;$('lkStatus').textContent='Filled in — fetching a short summary…';
+  var tok=S.tok;
+  enrich(kind,$('eName').value,kind==='city'&&S.pend?S.pend.country:'',x).then(function(e){if(tok!==S.tok)return;
+    if(e.photo&&!$('ePhoto').value){$('ePhoto').value=e.photo;prev();filled.push('photo');}
+    if(e.info&&!$('eInfo').value){$('eInfo').value=e.info;filled.push('summary');}
+    if(e.site&&kind==='place'&&!$('eSite').value){$('eSite').value=e.site;filled.push('website');$('eMore').open=true;}
+    $('lkStatus').textContent='Filled in'+(filled.length?': '+filled.join(', '):'')+'. Review and save.';});});
 $('btnMaps').addEventListener('click',function(){
   var u=$('eMaps').value.trim(),st=$('lkStatus'),la,ln,m;
   if(/goo\.gl|maps\.app/.test(u)){st.textContent='Short links can’t be read — open it, then paste the full address from the browser bar.';return;}
