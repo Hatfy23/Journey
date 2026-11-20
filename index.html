@@ -469,7 +469,7 @@ function hero(n){
   h+='<div class="row"><div class="seg" style="margin:0">'+['want','planned','visited'].map(function(s){return '<button data-act="status" data-val="'+s+'" class="'+(n.status===s?'on':'')+'">'+SICON[s]+' '+STAT[s]+'</button>';}).join('')+'</div><button class="btn sm ghost" data-act="must">'+(n.must?'⭐ Must-see':'☆ Must-see')+'</button></div>';
   h+='<div class="row"><span class="vis">Rating <span class="stars">'+stars(rat(n),true)+'</span></span></div>';
   h+='<div class="row"><span class="vis">🔁 Visits <button class="btn sm ghost" data-act="vdec"'+(vis(n)?'':' disabled')+'>−</button><b>'+vis(n)+'×</b><button class="btn sm ghost" data-act="vinc">+</button></span></div>';
-  h+='<div class="row"><button class="btn sm" data-act="edit">✏️ Edit</button>'+(n.kind!=='place'?'<button class="btn sm ghost" data-act="sugg">✨ Suggestions</button>':'')+(n.kind==='city'?'<button class="btn sm ghost" data-act="refresh" title="Re-fetch API data for this city and its places (fills empty fields and updates ones that came from an API)">🔄 Refresh data</button>':'')+(n.lat!=null?'<button class="btn sm ghost" data-act="showmap">🗺️ On map</button>':'')+(safe(n.website)?'<a class="btn sm ghost" target="_blank" rel="noopener" href="'+esc(safe(n.website))+'">🌐 Website ↗</a>':'')+(n.kind!=='place'?'<button class="btn sm ghost" data-act="addchild">+ '+(n.kind==='country'?'🏙️ City':'📍 Place')+'</button>':'')+'</div>';
+  h+='<div class="row"><button class="btn sm" data-act="edit">✏️ Edit</button>'+(n.kind!=='place'?'<button class="btn sm ghost" data-act="sugg">✨ Suggestions</button>':'')+(n.kind==='place'?'<button class="btn sm ghost" data-act="refresh1" title="Re-fetch API data for this place">🔄 Refresh data</button>':'')+(n.kind==='city'?'<button class="btn sm ghost" data-act="refresh" title="Re-fetch API data for this city and its places (fills empty fields and updates ones that came from an API)">🔄 Refresh data</button>':'')+(n.lat!=null?'<button class="btn sm ghost" data-act="showmap">🗺️ On map</button>':'')+(safe(n.website)?'<a class="btn sm ghost" target="_blank" rel="noopener" href="'+esc(safe(n.website))+'">🌐 Website ↗</a>':'')+(n.kind!=='place'?'<button class="btn sm ghost" data-act="addchild">+ '+(n.kind==='country'?'🏙️ City':'📍 Place')+'</button>':'')+'</div>';
   if(n.info)h+='<div class="info">'+esc(n.info)+'</div>';
   var facts=[];if(n.kind==='place'){if(n.hours)facts.push('🕒 '+n.hours);if(n.price)facts.push('💶 '+n.price);if(n.durationH!=null)facts.push('⏳ '+(n.extra&&n.extra.durEst?'≈':'')+n.durationH+' h');}
   if(n.season)facts.push('🌤️ '+n.season);
@@ -506,6 +506,7 @@ $('atlas').addEventListener('click',function(e){
   else if(a==='rate'){var rv=+t.getAttribute('data-val');n.extra=Object.assign({},n.extra||{},{rating:rat(n)===rv?0:rv});}
   else if(a==='sugg')return openSug(n);
   else if(a==='refresh')return refreshCity(n);
+  else if(a==='refresh1'){var pr=S.by[n.parentId];if(!pr)return toast('This place has no parent city.',true);toast('Refreshing '+n.name+'…');fillNode(n,pr,true).then(function(ch){toast(ch?'Updated — '+n.name:'Nothing new found for '+n.name);});return;}
   else if(a==='must'){n.must=!n.must;}
   else if(a==='edit')return openForm(n);
   else if(a==='addchild')return openForm(null,{kind:n.kind==='country'?'city':'place',parentId:n.id});
@@ -811,7 +812,7 @@ function openSug(n){SG.node=n;SG.items=[];var tok=++SG.tok;$('sgTitle').textCont
 function sgDraw(){var n=SG.node,have={};desc(n.id).concat(S.kids[n.id]||[]).forEach(function(c){have[norm(c.name)]=1;});
   $('sgList').innerHTML=SG.items.map(function(x,i){var done=have[norm(x.name)]||x.added,ic=x.kind==='city'?'🏙️':(TYPES[x.type]||TYPES.other)[0],meta=[x.hours?'🕒 '+x.hours:'',x.price?'💶 '+x.price:''].filter(Boolean).map(esc).join(' · ');
     return '<div class="sg"><div><b>'+ic+' '+esc(x.name)+'</b><small>'+esc(x.d||'')+(meta?(x.d?'<br>':'')+meta:'')+'</small></div>'+(done?'<span class="hint">✓ Added</span>':'<button class="btn sm" data-sg="'+i+'">+ Add</button>')+'</div>';}).join('');}
-function geoFind(name,place,lat){var qs=[name+', '+place],w=name.split(/\s+/);if(w.length>3)qs.push(w.slice(0,3).join(' ')+', '+place);qs.push(name);var i=0,np=norm(place);
+function geoFind(name,place,lat,addr){var qs=[name+', '+place],w=name.split(/\s+/);if(w.length>3)qs.push(w.slice(0,3).join(' ')+', '+place);if(addr&&addr.length>6)qs.push(addr);qs.push(name);var i=0,np=norm(place);
   function nx(){if(i>=qs.length)return Promise.resolve(null);return jget(NOM+'&limit=1&q='+encodeURIComponent(qs[i++])).then(function(r){var g=r&&r[0];
     if(g&&(lat!=null?Math.abs(+g.lat-lat)<0.1:norm(g.display_name).indexOf(np)>=0))return g;return nx();}).catch(nx);}
   return nx();}
@@ -827,7 +828,7 @@ function apiSet(nd,k,v){if(v==null||v==='')return false;var ap=(nd.extra&&nd.ext
 function fillNode(nd,par,full){var isP=nd.kind==='place',ch=false;function A(k,v){if(apiSet(nd,k,v))ch=true;}
   return (isP&&full?wvListing(nd.name,par.name,nd.lat,nd.lng):Promise.resolve(null)).then(function(w0){
     if(w0){A('hours',w0.hours);A('price',w0.price);A('website',w0.site);A('info',w0.info);if(w0.visitH&&(nd.durationH==null||(nd.extra&&nd.extra.durEst))){if(apiSet(nd,'durationH',w0.visitH)){nd.extra=Object.assign({},nd.extra,{durEst:true});}}}
-    return geoFind(nd.name,par.name,nd.lat==null?null:nd.lat);}).then(function(g){var et=(g&&g.extratags)||{};
+    return geoFind(nd.name,par.name,nd.lat==null?null:nd.lat,isP?nd.address:'');}).then(function(g){var et=(g&&g.extratags)||{};
     if(g){if(nd.lat==null){nd.lat=+g.lat;nd.lng=+g.lon;ch=true;}
       if(isP){A('address',g.display_name);var sw=et.website||et['contact:website'];if(sw){if(!/^https?:/i.test(sw))sw='https://'+sw;A('website',safe(sw));}
         A('hours',et.opening_hours?String(et.opening_hours).slice(0,160):'');A('price',et.charge?String(et.charge).slice(0,80):(et.fee==='no'?'Free':''));}}
@@ -1061,9 +1062,13 @@ function searchEntry(){
   var tok=++S.tok,trail=[];
   if(kind!=='country'&&S.userParent&&S.by[$('eParent').value])trail=path(S.by[$('eParent').value]).reverse().map(function(p){return p.name;});
   st.textContent='Searching…';res.hidden=true;
-  fetch(NOM+'&limit=6&q='+encodeURIComponent([name].concat(trail).join(', '))+(kind==='country'?'&featuretype=country':kind==='city'?'&featuretype=city':'')).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(list){
+  var ft=kind==='country'?'&featuretype=country':kind==='city'?'&featuretype=city':'',near=trail.length?trail[0]:'',w=name.split(/\s+/),qs=[[name].concat(trail).join(', ')],ad=$('eAddress').value.trim();
+  if(kind!=='country'&&trail.length>1)qs.push(name+', '+near);
+  if(kind==='place'){if(w.length>3)qs.push(w.slice(0,3).join(' ')+(near?', '+near:''));if(ad.length>6)qs.push(ad);qs.push(name);}
+  var qi=0;function tryQ(){return fetch(NOM+'&limit=6&q='+encodeURIComponent(qs[qi++])+ft).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(l){return (l&&l.length)||qi>=qs.length?l:tryQ();});}
+  tryQ().then(function(list){
     if(tok!==S.tok)return;S.res=list||[];
-    if(!S.res.length){st.textContent='Nothing found — fill in manually (address, coordinates, photo link).';return;}
+    if(!S.res.length){st.textContent='Nothing found (tried '+qs.length+' variations) — fill in manually (address, coordinates, photo link).';return;}
     res.innerHTML=S.res.map(function(x,i){return '<div data-i="'+i+'">'+esc(x.display_name)+'</div>';}).join('');res.hidden=false;st.textContent='Pick the right one:';
   }).catch(function(){if(tok===S.tok)st.textContent='Search failed (network or rate limit). Try again, or fill in manually.';});}
 $('btnSearch').addEventListener('click',searchEntry);
