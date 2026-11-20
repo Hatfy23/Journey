@@ -65,7 +65,19 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
 .hero h2{font-family:'Cinzel',serif;color:var(--gold-hi);margin:2px 0 10px;font-size:26px;font-weight:600}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
 .stars{display:inline-flex}.star-b{background:none;border:0;color:var(--leather);font-size:22px;line-height:1;cursor:pointer;padding:0 2px}.star-b.on{color:var(--gold-hi)}.star-b:hover{color:var(--gold)}.rt{color:var(--gold-hi);font-size:13px;letter-spacing:1px}
-.vis{display:inline-flex;align-items:center;gap:8px;color:var(--dim)}.vis b{color:var(--gold-hi);min-width:28px;text-align:center}.sg{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}.sg small{display:block;color:var(--dim);font-size:13px}.sg .btn{flex:none}
+.exp-head{display:flex;align-items:center;gap:8px;margin:2px 0 8px;flex-wrap:wrap}.exp-path{font-family:'Cinzel',serif;color:var(--gold-hi);font-size:14px}
+.tree-row .t-n{overflow:hidden;text-overflow:ellipsis}.backb{background:var(--panel3)!important;border:1px solid var(--leather)!important;padding:3px 10px!important;margin-right:6px;color:var(--gold-hi)!important}
+.info-c{margin:2px 0 10px;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45}
+.dt{border-top:1px solid var(--line);margin-top:8px}.dt summary{cursor:pointer;padding:8px 0;font-family:'Cinzel',serif;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold-dim);list-style:none}.dt summary::-webkit-details-marker{display:none}.dt summary::before{content:'▸ ';color:var(--gold-dim)}.dt[open] summary::before{content:'▾ '}.dt-b{padding:0 0 8px}.lks{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.plist{display:flex;flex-direction:column;gap:10px}.prow{display:flex;gap:12px;background:var(--panel);padding:8px;cursor:pointer;align-items:stretch;border:1px solid transparent}.prow:hover{border-color:var(--leather)}
+.prow-img{position:relative;flex:none;width:170px;min-height:118px;background:#0a0806;overflow:hidden}.prow-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.prow-b{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}.prow-t{font-family:'Cinzel',serif;font-size:17px;font-weight:600;color:var(--gold-hi);line-height:1.2}.prow-s{font-size:13px;color:var(--dim)}
+.prow-i{font-size:14px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.prow-f{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:13px;color:var(--text)}.prow-m{display:flex;gap:10px;align-items:center;margin-top:auto}
+.rk{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}.rk button{background:var(--panel3);border:1px solid var(--leather);color:var(--gold);width:28px;height:22px;cursor:pointer;font-size:11px;padding:0}.rk button:disabled{opacity:.3;cursor:default}
+.rkn{width:42px;text-align:center;background:var(--panel3);border:1px solid var(--gold-dim);color:var(--gold-hi);font:700 16px Georgia,serif;padding:4px 0;-moz-appearance:textfield}.rkn::-webkit-inner-spin-button{display:none}
+@media(max-width:600px){.prow-img{width:104px;min-height:90px}.prow-t{font-size:15px}.prow-i{-webkit-line-clamp:1}}
+.sg-img{position:relative;flex:none;width:84px;height:64px;background:#0a0806;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px}.sg-img span{opacity:.4}.sg-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.sg-t{flex:1;min-width:0}
+.vis{display:inline-flex;align-items:center;gap:8px;color:var(--dim)}.vis b{color:var(--gold-hi);min-width:28px;text-align:center}.sg{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.sg small{display:block;color:var(--dim);font-size:13px}.sg .btn{flex:none}
 .addr{color:var(--dim);font-size:15px}.addr a,.ev-sub a{color:var(--gold);text-decoration:none}.addr a:hover{text-decoration:underline}.hint{color:var(--dim);font-style:italic;font-size:14px}
 .chips{margin:4px 0 6px;color:var(--gold-dim);font-size:14px}
 .info{white-space:pre-line;margin:12px 0;line-height:1.5}
@@ -196,7 +208,7 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
       <select id="fType"></select><select id="fTag"></select>
       <select id="fStatus"><option value="">Any status</option><option value="want">🔖 Wishlist</option><option value="planned">🗓️ Planned</option><option value="visited">✅ Visited</option></select>
       <label><input type="checkbox" id="fMust"> ⭐ Must-see</label>
-      <select id="fSort"><option value="priority">Must-see first</option><option value="rating">★ Top rated</option><option value="az">A–Z</option><option value="recent">Recently added</option><option value="status">Status</option></select>
+      <select id="fSort"><option value="priority">My priority order</option><option value="rating">★ Top rated</option><option value="az">A–Z</option><option value="recent">Recently added</option><option value="status">Status</option></select>
       <button type="button" id="btnClear" class="btn ghost sm">Clear</button>
     </div>
     <div id="stats" class="muted"></div>
@@ -336,6 +348,7 @@ var ITYPES={flight:['✈️','Flight'],train:['🚆','Train'],bus:['🚌','Bus']
 var STAT={want:'Wishlist',planned:'Planned',visited:'Visited'},SICON={want:'🔖',planned:'🗓️',visited:'✅'},SORDER={planned:0,want:1,visited:2};
 var code=null,tt;
 var S={nodes:[],by:{},kids:{},trips:[],tripId:null,exp:{},nav:null,tab:'atlas',view:'list',scope:'countries',mode:'cities',mapIds:null,mapAll:false,open:{},map:null,layer:null,tok:0,pend:null,userParent:false,res:[],booted:false,editItem:'',editTrip:'',f:{q:'',type:'',tag:'',status:'',must:false,sort:'priority'}};
+S.det={};
 function $(i){return document.getElementById(i);}
 function esc(s){return s==null?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function uid(){return 'j_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);}
@@ -376,6 +389,7 @@ function loadAll(){
     done();
   },function(e){fail(e);loadCache();loadTripsCache();done();});
 }
+function saveNodes(a){if(!a.length)return;cacheNow();if(!sb)return;sb.from(TABLE).upsert(a.map(toRow),{onConflict:'id'}).then(function(r){if(r.error)fail(r.error);},fail);}
 function saveNode(n){cacheNow();if(!sb)return;sb.from(TABLE).upsert(toRow(n),{onConflict:'id'}).then(function(r){if(r.error)fail(r.error);},fail);}
 function delIds(ids){cacheNow();if(!sb)return;sb.from(TABLE).delete().in('id',ids).eq('sync_code',code).then(function(r){if(r.error)fail(r.error);},fail);}
 function saveTrip(t){cacheTrips();if(!sb)return;sb.from(TRIPS).upsert({id:t.id,sync_code:code,name:t.name,start_date:t.startDate||null,end_date:t.endDate||null,cover:t.cover||null,active:!!t.active,items:t.items,added_at:new Date(t.addedAt||Date.now()).toISOString()},{onConflict:'id'}).then(function(r){if(r.error)fail(r.error);},fail);}
@@ -391,6 +405,8 @@ function vis(n){return Math.max(0,parseInt((n.extra||{}).visits,10)||0);}
 function placesIn(n){return n.kind==='place'?[n]:desc(n.id).filter(function(x){return x.kind==='place';});}
 function icon(n){return n.kind==='country'?'🌍':n.kind==='city'?'🏙️':(TYPES[n.type]||TYPES.other)[0];}
 function az(a,b){return a.name.localeCompare(b.name);}
+function pri(n){var v=parseInt((n.extra||{}).pri,10);return v>0?v:1e9;}
+function ordered(a){return a.slice().sort(function(x,y){return (pri(x)-pri(y))||((y.must?1:0)-(x.must?1:0))||(rat(y)-rat(x))||az(x,y);});}
 function plural(n,s,p){return n+' '+(n===1?s:p);}
 function hasF(){var f=S.f;return !!(f.q||f.type||f.tag||f.status||f.must);}
 function matchSelf(n){var f=S.f;
@@ -404,7 +420,7 @@ function sortList(a){var s=S.f.sort;return a.slice().sort(function(x,y){
   if(s==='az')return az(x,y);if(s==='recent')return y.addedAt-x.addedAt;
   if(s==='status')return (SORDER[x.status]-SORDER[y.status])||az(x,y);
   if(s==='rating')return (rat(y)-rat(x))||((y.must?1:0)-(x.must?1:0))||az(x,y);
-  return ((y.must?1:0)-(x.must?1:0))||(rat(y)-rat(x))||az(x,y);});}
+  return (pri(x)-pri(y))||((y.must?1:0)-(x.must?1:0))||(rat(y)-rat(x))||az(x,y);});}
 function listFor(){
   var cur=S.nav?S.by[S.nav]:null;
   if(!cur){var k=S.scope==='countries'?'country':S.scope==='cities'?'city':'place';return S.nodes.filter(function(n){return n.kind===k&&matches(n);});}
@@ -438,16 +454,14 @@ function refreshFilters(){
   $('fType').value=S.f.type;$('fTag').value=S.f.tag;}
 
 function renderSidebar(){
-  var onp={};if(S.nav&&S.by[S.nav])path(S.by[S.nav]).forEach(function(n){onp[n.id]=1;});
-  function row(n,d,cnt,open,canOpen){return '<div class="tree-line" style="padding-left:'+d*14+'px"><button class="chev" data-toggle="'+n.id+'">'+(canOpen?(open?'▾':'▸'):'')+'</button><button class="tree-row'+(S.nav===n.id?' active':'')+'" data-nav="'+n.id+'"><span>'+icon(n)+' '+esc(n.name)+'</span><span class="cnt">'+cnt+'</span></button></div>';}
-  var h='<div class="side-title">The Atlas</div><div class="tree-line"><button class="chev"></button><button class="tree-row'+(S.nav===null?' active':'')+'" data-nav="">🧭 World <span class="cnt">'+S.nodes.filter(function(n){return n.kind==='place';}).length+'</span></button></div>';
-  S.nodes.filter(function(n){return n.kind==='country';}).sort(az).forEach(function(c){
-    var cities=(S.kids[c.id]||[]).filter(function(x){return x.kind==='city';}).sort(az),o=S.open[c.id]||onp[c.id];
-    h+=row(c,0,placesIn(c).length,o,cities.length>0);
-    if(o)cities.forEach(function(ci){var pl=(S.kids[ci.id]||[]).filter(function(x){return x.kind==='place';}).sort(az),o2=S.open[ci.id]||onp[ci.id];
-      h+=row(ci,1,pl.length,o2,pl.length>0);if(o2)pl.forEach(function(p){h+=row(p,2,'',false,false);});});});
+  var cur=S.nav&&S.by[S.nav]?S.by[S.nav]:null,cont=cur&&cur.kind==='place'?(S.by[cur.parentId]||null):cur,
+      items=cont?(S.kids[cont.id]||[]).slice():S.nodes.filter(function(n){return n.kind==='country';});
+  items=cont&&cont.kind==='city'?ordered(items):items.sort(az);
+  var up=cur?(cur.parentId&&S.by[cur.parentId]?S.by[cur.parentId].name:'World'):'';
+  var h='<div class="side-title">The Atlas</div><div class="exp-head"><button class="btn sm ghost" data-back="1"'+(cur?'':' disabled')+' title="'+(cur?'Up to '+esc(up):'')+'">← Back</button><span class="exp-path">'+(cont?icon(cont)+' '+esc(cont.name):'🧭 World')+'</span></div>';
+  h+=items.length?items.map(function(n){var k=n.kind==='place'?'':(n.kind==='country'?placesIn(n).length:placesIn(n).length),has=n.kind!=='place';
+    return '<button class="tree-row'+(S.nav===n.id?' active':'')+'" data-nav="'+n.id+'"><span class="t-n">'+icon(n)+' '+esc(n.name)+'</span><span class="cnt">'+(has?k+' ›':(n.status==='visited'?'✅':''))+'</span></button>';}).join(''):'<p class="muted" style="padding:6px">Nothing here yet.</p>';
   $('sidebar').innerHTML=h;}
-
 function stamp(n){return n.status==='want'?'':'<span class="stamp '+n.status+'">'+SICON[n.status]+' '+STAT[n.status]+'</span>';}
 function cardSub(n){
   if(n.kind==='country')return plural((S.kids[n.id]||[]).length,'city','cities')+' · '+plural(placesIn(n).length,'place','places');
@@ -459,41 +473,63 @@ function card(n){
   var bd=stamp(n)+(n.must?'<span class="star">⭐</span>':'')+(rat(n)?'<span class="rt" title="Rating">'+stars(rat(n))+'</span>':'');
   return '<div class="card" data-open="'+n.id+'"><div class="card-img"><div class="ph">'+icon(n)+'</div>'+(ph?'<img data-hide src="'+esc(ph)+'" loading="lazy" referrerpolicy="no-referrer" alt="">':'')+'</div><div class="card-body"><div class="card-title">'+icon(n)+' '+esc(n.name)+'</div><div class="card-sub">'+esc(cardSub(n))+'</div>'+(bd?'<div class="card-badges">'+bd+'</div>':'')+bar+'</div></div>';}
 
+function dt(key,title,body,def){var k=S.det[key],o=k==null?!!def:k;return '<details class="dt" data-dk="'+key+'"'+(o?' open':'')+'><summary>'+title+'</summary><div class="dt-b">'+body+'</div></details>';}
 function hero(n){
   var ph=safe(n.photo),h='<section class="hero"><div class="hero-img"><div class="ph">'+icon(n)+'</div>'+(ph?'<img data-hide src="'+esc(ph)+'" referrerpolicy="no-referrer" alt="">':'')+'</div><div class="hero-body">';
   h+='<div class="kindlabel">'+icon(n)+' '+(n.kind==='place'?(TYPES[n.type]||TYPES.other)[1]:n.kind==='city'?'City':'Country')+(ctx(n)?' · '+esc(ctx(n)):'')+'</div><h2>'+esc(n.name)+(n.must?' <span class="star">⭐</span>':'')+'</h2>';
-  if(n.tags.length)h+='<div class="chips">'+n.tags.map(function(t){return '#'+esc(t);}).join('  ')+'</div>';
-  if(n.address)h+='<div class="addr"><a target="_blank" rel="noopener" href="'+esc(gmaps(n))+'">📍 '+esc(n.address)+'</a></div>';
-  else if(n.lat!=null)h+='<div class="addr"><a target="_blank" rel="noopener" href="'+esc(gmaps(n))+'">📍 Open in Google Maps</a></div>';
-  else if(n.kind==='place'&&n.lat==null)h+='<div class="hint">No location yet — Edit → Search.</div>';
-  h+='<div class="row"><div class="seg" style="margin:0">'+['want','planned','visited'].map(function(s){return '<button data-act="status" data-val="'+s+'" class="'+(n.status===s?'on':'')+'">'+SICON[s]+' '+STAT[s]+'</button>';}).join('')+'</div><button class="btn sm ghost" data-act="must">'+(n.must?'⭐ Must-see':'☆ Must-see')+'</button></div>';
-  h+='<div class="row"><span class="vis">Rating <span class="stars">'+stars(rat(n),true)+'</span></span></div>';
-  h+='<div class="row"><span class="vis">🔁 Visits <button class="btn sm ghost" data-act="vdec"'+(vis(n)?'':' disabled')+'>−</button><b>'+vis(n)+'×</b><button class="btn sm ghost" data-act="vinc">+</button></span></div>';
-  h+='<div class="row"><button class="btn sm" data-act="edit">✏️ Edit</button>'+(n.kind!=='place'?'<button class="btn sm ghost" data-act="sugg">✨ Suggestions</button>':'')+(n.kind==='place'?'<button class="btn sm ghost" data-act="refresh1" title="Re-fetch API data for this place">🔄 Refresh data</button>':'')+(n.kind==='city'?'<button class="btn sm ghost" data-act="refresh" title="Re-fetch API data for this city and its places (fills empty fields and updates ones that came from an API)">🔄 Refresh data</button>':'')+(n.lat!=null?'<button class="btn sm ghost" data-act="showmap">🗺️ On map</button>':'')+(safe(n.website)?'<a class="btn sm ghost" target="_blank" rel="noopener" href="'+esc(safe(n.website))+'">🌐 Website ↗</a>':'')+(n.kind!=='place'?'<button class="btn sm ghost" data-act="addchild">+ '+(n.kind==='country'?'🏙️ City':'📍 Place')+'</button>':'')+'</div>';
-  if(n.info)h+='<div class="info">'+esc(n.info)+'</div>';
-  var facts=[];if(n.kind==='place'){if(n.hours)facts.push('🕒 '+n.hours);if(n.price)facts.push('💶 '+n.price);if(n.durationH!=null)facts.push('⏳ '+(n.extra&&n.extra.durEst?'≈':'')+n.durationH+' h');}
+  if(n.info)h+='<p class="info-c">'+esc(n.info)+'</p>';
+  h+='<div class="row"><div class="seg" style="margin:0">'+['want','planned','visited'].map(function(s){return '<button data-act="status" data-val="'+s+'" class="'+(n.status===s?'on':'')+'">'+SICON[s]+' '+STAT[s]+'</button>';}).join('')+'</div></div>';
+  h+='<div class="row"><span class="vis">Rating <span class="stars">'+stars(rat(n),true)+'</span></span><button class="btn sm ghost" data-act="must">'+(n.must?'⭐ Must-see':'☆ Must-see')+'</button></div>';
+  h+='<div class="row"><button class="btn sm" data-act="edit">✏️ Edit</button>'+(n.kind!=='place'?'<button class="btn sm ghost" data-act="sugg">✨ Suggestions</button>':'')+'</div>';
+  var ab='',facts=[];
+  if(n.info)ab+='<div class="info">'+esc(n.info)+'</div>';
+  if(n.kind==='place'){if(n.hours)facts.push('🕒 '+n.hours);if(n.price)facts.push('💶 '+n.price);if(n.durationH!=null)facts.push('⏳ '+(n.extra&&n.extra.durEst?'≈':'')+n.durationH+' h');}
   if(n.season)facts.push('🌤️ '+n.season);
-  if(facts.length)h+='<div class="facts">'+facts.map(function(f){return '<span>'+esc(f)+'</span>';}).join('')+'</div>';
-  var done=n.pois.filter(function(p){return p.done;}).length,ex=n.kind==='place'?'a specific artwork, room, dish…':n.kind==='city'?'a neighborhood, market, day trip…':'a region, route, tradition…';
-  h+='<div class="block"><h3>🧭 Points of interest '+(n.pois.length?'<span class="muted">('+done+'/'+n.pois.length+')</span>':'')+'</h3><ul class="pois">'+n.pois.map(function(p,i){return '<li><label><input type="checkbox" data-poi="'+i+'"'+(p.done?' checked':'')+'><span class="'+(p.done?'done':'')+'">'+esc(p.t)+'</span></label><button data-act="delpoi" data-i="'+i+'" title="Remove">✕</button></li>';}).join('')+'</ul><form class="inline-add" id="poiForm"><input id="poiIn" placeholder="Add: '+ex+'"><button class="btn sm">Add</button></form></div>';
+  if(facts.length)ab+='<div class="facts">'+facts.map(function(f){return '<span>'+esc(f)+'</span>';}).join('')+'</div>';
+  if(n.address)ab+='<div class="addr"><a target="_blank" rel="noopener" href="'+esc(gmaps(n))+'">📍 '+esc(n.address)+'</a></div>';
+  else if(n.lat!=null)ab+='<div class="addr"><a target="_blank" rel="noopener" href="'+esc(gmaps(n))+'">📍 Open in Google Maps</a></div>';
+  else if(n.kind==='place')ab+='<div class="hint">No location yet — Edit → Search.</div>';
+  if(n.tags.length)ab+='<div class="chips">'+n.tags.map(function(t){return '#'+esc(t);}).join('  ')+'</div>';
   var lk=n.links.filter(function(l){return safe(l.url);});
-  if(lk.length)h+='<div class="block"><h3>🔗 Links</h3>'+lk.map(function(l){return '<a class="linkbtn" target="_blank" rel="noopener" href="'+esc(safe(l.url))+'">'+esc(l.label||'Link')+' ↗</a>';}).join('')+'</div>';
+  if(safe(n.website)||lk.length)ab+='<div class="lks">'+(safe(n.website)?'<a class="linkbtn" target="_blank" rel="noopener" href="'+esc(safe(n.website))+'">🌐 Website ↗</a>':'')+lk.map(function(l){return '<a class="linkbtn" target="_blank" rel="noopener" href="'+esc(safe(l.url))+'">'+esc(l.label||'Link')+' ↗</a>';}).join('')+'</div>';
+  h+=dt(n.id+':about','ℹ️ About &amp; details',ab||'<p class="muted">No details yet.</p>',false);
+  var done=n.pois.filter(function(p){return p.done;}).length,ex=n.kind==='place'?'a specific artwork, room, dish…':n.kind==='city'?'a neighborhood, market, day trip…':'a region, route, tradition…';
+  h+=dt(n.id+':poi','🧭 Points of interest'+(n.pois.length?' <span class="muted">('+done+'/'+n.pois.length+')</span>':''),'<ul class="pois">'+n.pois.map(function(p,i){return '<li><label><input type="checkbox" data-poi="'+i+'"'+(p.done?' checked':'')+'><span class="'+(p.done?'done':'')+'">'+esc(p.t)+'</span></label><button data-act="delpoi" data-i="'+i+'" title="Remove">✕</button></li>';}).join('')+'</ul><form class="inline-add" id="poiForm"><input id="poiIn" placeholder="Add: '+ex+'"><button class="btn sm">Add</button></form>',false);
+  var tl='<div class="row"><span class="vis">🔁 Visits <button class="btn sm ghost" data-act="vdec"'+(vis(n)?'':' disabled')+'>−</button><b>'+vis(n)+'×</b><button class="btn sm ghost" data-act="vinc">+</button></span></div><div class="row">'+(n.lat!=null?'<button class="btn sm ghost" data-act="showmap">🗺️ On map</button>':'')+(n.kind==='place'?'<button class="btn sm ghost" data-act="refresh1" title="Re-fetch API data for this place">🔄 Refresh data</button>':'')+(n.kind==='city'?'<button class="btn sm ghost" data-act="refresh" title="Re-fetch API data for this city and its places (fills empty fields and updates ones that came from an API)">🔄 Refresh data</button>':'')+'</div>';
+  h+=dt(n.id+':tools','🛠️ Tools',tl,false);
   return h+'</div></section>';}
+
+function prow(n,i,tot,rk){var ph=safe(n.photo),f=[];
+  if(n.hours)f.push('🕒 '+n.hours);if(n.price)f.push('💶 '+n.price);if(n.durationH!=null)f.push('⏳ '+(n.extra&&n.extra.durEst?'≈':'')+n.durationH+' h');
+  var ad=n.address?String(n.address).split(',').slice(0,2).join(',').trim():'';
+  return '<div class="prow" data-open="'+n.id+'">'+(rk?'<div class="rk"><button data-mv="-1" data-id="'+n.id+'"'+(i===0?' disabled':'')+' title="Move up">▲</button><input class="rkn" type="number" min="1" max="'+tot+'" value="'+(i+1)+'" data-rk="'+n.id+'" title="Priority position"><button data-mv="1" data-id="'+n.id+'"'+(i===tot-1?' disabled':'')+' title="Move down">▼</button></div>':'')
+   +'<div class="prow-img"><div class="ph">'+icon(n)+'</div>'+(ph?'<img data-hide src="'+esc(ph)+'" loading="lazy" referrerpolicy="no-referrer" alt="">':'')+'</div>'
+   +'<div class="prow-b"><div class="prow-t">'+esc(n.name)+(n.must?' <span class="star">⭐</span>':'')+'</div><div class="prow-s">'+esc((TYPES[n.type]||TYPES.other)[1]+(ad?' · '+ad:''))+'</div>'
+   +(n.info?'<div class="prow-i">'+esc(n.info)+'</div>':'')+(f.length?'<div class="prow-f">'+f.map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'</div>':'')
+   +'<div class="prow-m">'+stamp(n)+(rat(n)?'<span class="rt">'+stars(rat(n))+'</span>':'')+(vis(n)?'<span class="muted">🔁 '+vis(n)+'×</span>':'')+'</div></div></div>';}
+function moveTo(c,id,pos){var arr=ordered((S.kids[c.id]||[]).filter(function(k){return k.kind==='place';})),i=-1,k;
+  for(k=0;k<arr.length;k++)if(arr[k].id===id)i=k;if(i<0)return;pos=Math.max(0,Math.min(arr.length-1,pos));if(pos===i)return renderAll();
+  var it=arr.splice(i,1)[0];arr.splice(pos,0,it);var ch=[];
+  arr.forEach(function(n,j){if(pri(n)!==j+1){n.extra=Object.assign({},n.extra||{},{pri:j+1});ch.push(n);}});saveNodes(ch);renderAll();}
 
 function renderAtlas(){
   var el=$('atlas'),cur=S.nav?S.by[S.nav]:null,h='';
   if(!S.nodes.length){el.innerHTML='<p class="empty">🧭 Your atlas is empty.<br>Press <b>+ Add</b> and search for a country, city or place.</p>';return;}
-  h+='<nav class="crumbs"><button data-crumb="">🧭 World</button>'+(cur?path(cur).map(function(p){return ' › '+(p===cur?'<b>'+esc(p.name)+'</b>':'<button data-crumb="'+p.id+'">'+esc(p.name)+'</button>');}).join(''):'')+'</nav>';
+  h+='<nav class="crumbs">'+(cur?'<button class="backb" data-crumb="'+(cur.parentId||'')+'">← Back</button> ':'')+'<button data-crumb="">🧭 World</button>'+(cur?path(cur).map(function(p){return ' › '+(p===cur?'<b>'+esc(p.name)+'</b>':'<button data-crumb="'+p.id+'">'+esc(p.name)+'</button>');}).join(''):'')+'</nav>';
   if(!cur)h+='<div class="seg">'+[['countries','🌍 Countries'],['cities','🏙️ Cities'],['places','📍 Places']].map(function(s){return '<button data-scope="'+s[0]+'" class="'+(S.scope===s[0]?'on':'')+'">'+s[1]+'</button>';}).join('')+'</div>';
   else h+=hero(cur);
   if(!cur||cur.kind!=='place'){
-    var items=sortList(listFor());
-    h+='<div class="list-head">'+(cur&&cur.kind==='country'?'<div class="seg" style="margin:0"><button data-mode="cities" class="'+(S.mode==='cities'?'on':'')+'">🏙️ Cities</button><button data-mode="places" class="'+(S.mode==='places'?'on':'')+'">📍 All places</button></div>':cur?'<h3>📍 Places in '+esc(cur.name)+'</h3>':'<span></span>')+'<span class="muted">'+items.length+' shown</span></div>';
-    h+=items.length?'<div class="cards">'+items.map(card).join('')+'</div>':'<p class="empty">'+(hasF()?'Nothing matches these filters.':'Nothing here yet.')+'</p>';}
+    var raw=listFor(),isP=raw.length&&raw[0].kind==='place',rk=!!(cur&&cur.kind==='city'&&S.f.sort==='priority'&&!hasF()),items=rk?ordered(raw):sortList(raw);
+    h+='<div class="list-head">'+(cur&&cur.kind==='country'?'<div class="seg" style="margin:0"><button data-mode="cities" class="'+(S.mode==='cities'?'on':'')+'">🏙️ Cities</button><button data-mode="places" class="'+(S.mode==='places'?'on':'')+'">📍 All places</button></div>':cur?'<h3>📍 Places in '+esc(cur.name)+'</h3>':'<span></span>')+'<span class="muted">'+items.length+' shown'+(cur&&cur.kind!=='place'&&!(cur.kind==='country'&&S.mode==='cities')?' <button class="btn sm ghost" data-act="addchild">+ Place</button>':'')+'</span></div>';
+    if(rk&&items.length>1)h+='<p class="hint" style="margin:0 0 8px">Prioritize with ▲▼ or type a position number.</p>';
+    else if(cur&&cur.kind==='city'&&items.length>1)h+='<p class="hint" style="margin:0 0 8px">Reordering is available with “My priority order” and no filters.</p>';
+    h+=items.length?(isP?'<div class="plist">'+items.map(function(n,i){return prow(n,i,items.length,rk);}).join('')+'</div>':'<div class="cards">'+items.map(card).join('')+'</div>'):'<p class="empty">'+(hasF()?'Nothing matches these filters.':'Nothing here yet.')+'</p>';}
   el.innerHTML=h;}
 
 /* ---------- atlas events ---------- */
 $('atlas').addEventListener('click',function(e){
+  var mv=e.target.closest('[data-mv]');if(mv){var cc=S.by[S.nav],id0=mv.getAttribute('data-id'),pl0=ordered((S.kids[cc.id]||[]).filter(function(k){return k.kind==='place';})),ix=-1;pl0.forEach(function(q,j){if(q.id===id0)ix=j;});return moveTo(cc,id0,ix+(+mv.getAttribute('data-mv')));}
+  if(e.target.closest('.rk'))return;
   var t=e.target.closest('[data-act],[data-open],[data-scope],[data-mode],[data-crumb]');if(!t)return;
   if(t.hasAttribute('data-open'))return navigate(t.getAttribute('data-open'));
   if(t.hasAttribute('data-crumb'))return navigate(t.getAttribute('data-crumb'));
@@ -514,10 +550,11 @@ $('atlas').addEventListener('click',function(e){
   else if(a==='delpoi'){n.pois.splice(+t.getAttribute('data-i'),1);}
   else return;
   saveNode(n);renderAll();});
-$('atlas').addEventListener('change',function(e){var i=e.target.getAttribute&&e.target.getAttribute('data-poi');if(i==null)return;var n=S.by[S.nav];if(!n||!n.pois[i])return;n.pois[i].done=e.target.checked;saveNode(n);renderAll();});
+$('atlas').addEventListener('change',function(e){var rk=e.target.getAttribute&&e.target.getAttribute('data-rk');if(rk){var c0=S.by[S.nav];if(c0)moveTo(c0,rk,(parseInt(e.target.value,10)||1)-1);return;}var i=e.target.getAttribute&&e.target.getAttribute('data-poi');if(i==null)return;var n=S.by[S.nav];if(!n||!n.pois[i])return;n.pois[i].done=e.target.checked;saveNode(n);renderAll();});
+$('atlas').addEventListener('toggle',function(e){var d=e.target;if(d&&d.getAttribute&&d.getAttribute('data-dk'))S.det[d.getAttribute('data-dk')]=d.open;},true);
 $('atlas').addEventListener('submit',function(e){if(e.target.id!=='poiForm')return;e.preventDefault();var v=$('poiIn').value.trim(),n=S.by[S.nav];if(!v||!n)return;n.pois.push({t:v,done:false});saveNode(n);renderAll();$('poiIn').focus();});
-$('sidebar').addEventListener('click',function(e){var t=e.target.closest('[data-toggle],[data-nav]');if(!t)return;
-  if(t.hasAttribute('data-toggle')){var id=t.getAttribute('data-toggle');if(!id)return;S.open[id]=!S.open[id];return renderSidebar();}
+$('sidebar').addEventListener('click',function(e){var t=e.target.closest('[data-nav],[data-back]');if(!t)return;
+  if(t.hasAttribute('data-back')){var c=S.nav&&S.by[S.nav];return navigate(c?c.parentId:'');}
   navigate(t.getAttribute('data-nav'));});
 document.querySelectorAll('.main-tab').forEach(function(b){b.addEventListener('click',function(){S.mapIds=null;switchTab(b.getAttribute('data-tab'));});});
 $('viewSeg').addEventListener('click',function(e){var b=e.target.closest('[data-view]');if(!b)return;S.view=b.getAttribute('data-view');S.mapIds=null;renderAll();});
@@ -806,12 +843,18 @@ function sgCity(n){var nm=n.name,A='https://en.wikivoyage.org/w/api.php?format=j
           lat:o.lat?+o.lat:null,lon:o['long']?+o['long']:null,visitH:visitFrom(desc),_t:o._t};it.type=sgType({_t:o._t,name:nme,d:desc});
         it.score=({see:3,'do':2,eat:1,drink:1})[o._t]+(desc.length>40?2:0)+(it.hours?.5:0)+(it.lat!=null?.5:0)+(p.title===nm?1:0);out.push(it);}});
     out.sort(function(a,b){return b.score-a.score;});return out.slice(0,24);});}
+function sgPhoto(x,par){var viaWd=function(){return wdFind2(x.name,null).then(wdFacts).then(function(f){return f.img||'';});};
+  if(x.kind==='place')return (x.lat!=null?commonsGeo(x.name,x.lat,x.lon):Promise.resolve('')).then(function(u){return u||viaWd();}).catch(function(){return '';});
+  return wvBrief(x.name+' '+par.name).then(function(w){return w.img||viaWd();}).catch(function(){return '';});}
+function sgPhotos(tok){var q=SG.items.map(function(x,i){return i;}),run=0;
+  function pump(){while(run<3&&q.length){(function(i){var x=SG.items[i];run++;sgPhoto(x,SG.node).then(function(u){run--;if(tok!==SG.tok)return;if(u){x.photo=u;var el=$('sgi'+i);if(el&&!el.querySelector('img')){var im=document.createElement('img');im.setAttribute('data-hide','');im.referrerPolicy='no-referrer';im.src=u;im.alt='';el.appendChild(im);}}pump();});})(q.shift());}}
+  pump();}
 function openSug(n){SG.node=n;SG.items=[];var tok=++SG.tok;$('sgTitle').textContent='✨ Suggestions — '+n.name;$('sgList').innerHTML='';$('sgSt').textContent='Looking up Wikivoyage…';$('modalSug').hidden=false;
-  (n.kind==='country'?sgCountry(n):sgCity(n)).then(function(items){if(tok!==SG.tok)return;SG.items=items;sgDraw();
+  (n.kind==='country'?sgCountry(n):sgCity(n)).then(function(items){if(tok!==SG.tok)return;SG.items=items;sgDraw();sgPhotos(tok);
     $('sgSt').textContent=items.length?'From Wikivoyage — check details before relying on them.':'Nothing found on Wikivoyage for “'+n.name+'”.';}).catch(function(){if(tok===SG.tok)$('sgSt').textContent='Could not reach Wikivoyage right now.';});}
 function sgDraw(){var n=SG.node,have={};desc(n.id).concat(S.kids[n.id]||[]).forEach(function(c){have[norm(c.name)]=1;});
-  $('sgList').innerHTML=SG.items.map(function(x,i){var done=have[norm(x.name)]||x.added,ic=x.kind==='city'?'🏙️':(TYPES[x.type]||TYPES.other)[0],meta=[x.hours?'🕒 '+x.hours:'',x.price?'💶 '+x.price:''].filter(Boolean).map(esc).join(' · ');
-    return '<div class="sg"><div><b>'+ic+' '+esc(x.name)+'</b><small>'+esc(x.d||'')+(meta?(x.d?'<br>':'')+meta:'')+'</small></div>'+(done?'<span class="hint">✓ Added</span>':'<button class="btn sm" data-sg="'+i+'">+ Add</button>')+'</div>';}).join('');}
+  $('sgList').innerHTML=SG.items.map(function(x,i){var done=have[norm(x.name)]||x.added,ic=x.kind==='city'?'🏙️':(TYPES[x.type]||TYPES.other)[0],th='<div class="sg-img" id="sgi'+i+'"><span>'+ic+'</span>'+(x.photo?'<img data-hide loading="lazy" referrerpolicy="no-referrer" src="'+esc(x.photo)+'" alt="">':'')+'</div>',meta=[x.hours?'🕒 '+x.hours:'',x.price?'💶 '+x.price:''].filter(Boolean).map(esc).join(' · ');
+    return '<div class="sg">'+th+'<div class="sg-t"><b>'+ic+' '+esc(x.name)+'</b><small>'+esc(x.d||'')+(meta?(x.d?'<br>':'')+meta:'')+'</small></div>'+(done?'<span class="hint">✓ Added</span>':'<button class="btn sm" data-sg="'+i+'">+ Add</button>')+'</div>';}).join('');}
 function geoFind(name,place,lat,addr){var qs=[name+', '+place],w=name.split(/\s+/);if(w.length>3)qs.push(w.slice(0,3).join(' ')+', '+place);if(addr&&addr.length>6)qs.push(addr);qs.push(name);var i=0,np=norm(place);
   function nx(){if(i>=qs.length)return Promise.resolve(null);return jget(NOM+'&limit=1&q='+encodeURIComponent(qs[i++])).then(function(r){var g=r&&r[0];
     if(g&&(lat!=null?Math.abs(+g.lat-lat)<0.1:norm(g.display_name).indexOf(np)>=0))return g;return nx();}).catch(nx);}
@@ -844,11 +887,11 @@ function refreshCity(c){if(RF)return;var par=S.by[c.parentId],pl=(S.kids[c.id]||
   toast('Refreshing '+c.name+'…');
   (par?fillNode(c,par,false):Promise.resolve(false)).then(function(ch){if(ch)upd++;setTimeout(next,1100);});}
 $('sgList').addEventListener('click',function(e){var b=e.target.closest('[data-sg]');if(!b)return;var x=SG.items[+b.getAttribute('data-sg')],par=SG.node;if(!x||x.added)return;x.added=true;
-  var nd=blank(x.kind,x.name,par.id);nd.info=x.d||'';nd.lat=x.lat;nd.lng=x.lon;
+  var nd=blank(x.kind,x.name,par.id);nd.info=x.d||'';nd.lat=x.lat;nd.lng=x.lon;nd.photo=x.photo||'';
   if(x.kind==='place'){nd.type=x.type;nd.hours=x.hours||'';nd.price=x.price||'';nd.website=x.site||'';nd.address=x.addr?(x.addr+(par.kind==='city'?', '+par.name:'')):'';
     if(x.visitH){nd.durationH=x.visitH;nd.extra={durEst:true};}}
   S.nodes.push(nd);reindex();saveNode(nd);sgDraw();renderAll();toast('Added — '+nd.name);
-  nd.extra=Object.assign({},nd.extra||{},{api:['info','hours','price','website','address','durationH'].filter(function(k){return nd[k]!=null&&nd[k]!=='';})});
+  nd.extra=Object.assign({},nd.extra||{},{api:['info','hours','price','website','address','durationH','photo'].filter(function(k){return nd[k]!=null&&nd[k]!=='';})});
   fillNode(nd,par,false);});
 /* ---------- install as an app (manifest is built here, no extra files) ---------- */
 (function(){
