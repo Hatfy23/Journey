@@ -57,7 +57,7 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
 .seg button.on{background:var(--panel3);color:var(--gold-hi);border-color:var(--gold);position:relative}
 .hero{display:grid;grid-template-columns:1fr;background:var(--panel);margin-bottom:22px}
 @media(min-width:760px){.hero{grid-template-columns:280px 1fr}}
-.hero-img,.card-img{position:relative;background:#0a0806;overflow:hidden}.hero-img{aspect-ratio:16/10}@media(min-width:760px){.hero-img{aspect-ratio:auto;min-height:220px}}
+.hero-img,.card-img{position:relative;background:#0a0806;overflow:hidden}.hero-img{aspect-ratio:16/10}@media(min-width:760px){.hero-img{aspect-ratio:4/3;min-height:0;align-self:start}}
 .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:42px;opacity:.35}
 .hero-img img,.card-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hero-body{padding:16px 20px}
@@ -76,8 +76,9 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
 .rk{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}.rk button{background:var(--panel3);border:1px solid var(--leather);color:var(--gold);width:28px;height:22px;cursor:pointer;font-size:11px;padding:0}.rk button:disabled{opacity:.3;cursor:default}
 .rkn{width:42px;text-align:center;background:var(--panel3);border:1px solid var(--gold-dim);color:var(--gold-hi);font:700 16px Georgia,serif;padding:4px 0;-moz-appearance:textfield}.rkn::-webkit-inner-spin-button{display:none}
 @media(max-width:600px){.prow-img{width:104px;min-height:90px}.prow-t{font-size:15px}.prow-i{-webkit-line-clamp:1}}
-.sg-img{position:relative;flex:none;width:84px;height:64px;background:#0a0806;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px}.sg-img span{opacity:.4}.sg-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.sg-t{flex:1;min-width:0}
-.vis{display:inline-flex;align-items:center;gap:8px;color:var(--dim)}.vis b{color:var(--gold-hi);min-width:28px;text-align:center}.sg{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.sg small{display:block;color:var(--dim);font-size:13px}.sg .btn{flex:none}
+.sgc{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.sgc button{background:none;border:1px solid var(--leather);color:var(--dim);padding:4px 10px;cursor:pointer;font-size:13px;font-family:inherit}.sgc button.on{background:var(--panel3);color:var(--gold-hi);border-color:var(--gold)}
+.sg-img{position:relative;flex:none;width:112px;height:84px;background:#0a0806;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px}.sg-img span{opacity:.4}.sg-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.sg-t{flex:1;min-width:0}
+.vis{display:inline-flex;align-items:center;gap:8px;color:var(--dim)}.vis b{color:var(--gold-hi);min-width:28px;text-align:center}.sg{display:flex;gap:14px;align-items:center;padding:12px 0;font-size:16px;border-bottom:1px solid var(--line)}.sg small{display:block;color:var(--dim);font-size:14px;margin-top:2px}.sg .btn{flex:none}
 .addr{color:var(--dim);font-size:15px}.addr a,.ev-sub a{color:var(--gold);text-decoration:none}.addr a:hover{text-decoration:underline}.hint{color:var(--dim);font-style:italic;font-size:14px}
 .chips{margin:4px 0 6px;color:var(--gold-dim);font-size:14px}
 .info{white-space:pre-line;margin:12px 0;line-height:1.5}
@@ -273,7 +274,7 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
       <div><label>Activity type</label><select id="iType"></select><div class="status-line" id="iSt"></div></div>
       <div data-t="flight,train,bus"><label>⚡ Smart fill — paste a confirmation, or type e.g. “TP 36 2025-05-02”</label><textarea id="iPaste" placeholder="Booking e-mail text, or flight number + date"></textarea><button type="button" class="btn sm" id="iFill" style="margin-top:6px">⚡ Fill from text</button><div class="status-line" id="iFillSt"></div></div>
       <div data-t="sight,meal,activity,lodging,other"><label id="iNameL">Place</label>
-        <div class="pick"><input type="text" id="iName" placeholder="Search a place, or type a title"><button type="button" class="btn sm" data-pkbtn="iName">🔎</button></div><div class="lk" id="iNameRes" hidden></div></div>
+        <div class="pick"><input type="text" id="iName" placeholder="Search a place, or type a title"><button type="button" class="btn sm" data-pkbtn="iName">🔎</button><button type="button" class="btn sm" id="iMine" title="Pick from my saved places">📚 Mine</button></div><div class="lk" id="iNameRes" hidden></div></div>
       <div data-t="sight,meal,activity,lodging,other"><label>Address</label><input type="text" id="iAddr"><label style="margin-top:8px">Time zone (auto from the place)</label><input type="text" id="iTz" class="tzin" list="tzlist" placeholder="e.g. Europe/Berlin"></div>
       <div data-t="flight,train,bus,ride"><label id="iFromL">From</label>
         <div class="pick"><input type="text" id="iFrom"><button type="button" class="btn sm" data-pkbtn="iFrom">🔎</button></div><div class="lk" id="iFromRes" hidden></div>
@@ -297,12 +298,23 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
   </div>
 </div>
 
+<!-- saved places picker -->
+<div id="modalPick" class="modal-overlay" style="z-index:60" hidden>
+  <div class="modal" style="max-width:720px">
+    <button class="x" type="button" data-close>&times;</button>
+    <h2>📚 My saved places</h2>
+    <input type="text" id="pkQ" placeholder="Search by name, city or address…" style="margin-bottom:8px">
+    <div id="pkList"></div>
+  </div>
+</div>
+
 <!-- suggestions -->
 <div id="modalSug" class="modal-overlay" hidden>
-  <div class="modal" style="max-width:560px">
+  <div class="modal" style="max-width:720px">
     <button class="x" type="button" data-close>&times;</button>
     <h2 id="sgTitle">Suggestions</h2>
     <div class="status-line" id="sgSt"></div>
+    <div id="sgChips" class="sgc"></div>
     <div id="sgList"></div>
   </div>
 </div>
@@ -458,7 +470,7 @@ function renderSidebar(){
       items=cont?(S.kids[cont.id]||[]).slice():S.nodes.filter(function(n){return n.kind==='country';});
   items=cont&&cont.kind==='city'?ordered(items):items.sort(az);
   var up=cur?(cur.parentId&&S.by[cur.parentId]?S.by[cur.parentId].name:'World'):'';
-  var h='<div class="side-title">The Atlas</div><div class="exp-head"><button class="btn sm ghost" data-back="1"'+(cur?'':' disabled')+' title="'+(cur?'Up to '+esc(up):'')+'">← Back</button><span class="exp-path">'+(cont?icon(cont)+' '+esc(cont.name):'🧭 World')+'</span></div>';
+  var h='<div class="side-title">The Atlas</div><div class="exp-head"><button class="btn sm ghost" data-home="1" title="Home">🏠</button><button class="btn sm ghost" data-back="1"'+(cur?'':' disabled')+' title="'+(cur?'Up to '+esc(up):'')+'">← Back</button><span class="exp-path">'+(cont?icon(cont)+' '+esc(cont.name):'🧭 World')+'</span></div>';
   h+=items.length?items.map(function(n){var k=n.kind==='place'?'':(n.kind==='country'?placesIn(n).length:placesIn(n).length),has=n.kind!=='place';
     return '<button class="tree-row'+(S.nav===n.id?' active':'')+'" data-nav="'+n.id+'"><span class="t-n">'+icon(n)+' '+esc(n.name)+'</span><span class="cnt">'+(has?k+' ›':(n.status==='visited'?'✅':''))+'</span></button>';}).join(''):'<p class="muted" style="padding:6px">Nothing here yet.</p>';
   $('sidebar').innerHTML=h;}
@@ -495,7 +507,7 @@ function hero(n){
   h+=dt(n.id+':about','ℹ️ About &amp; details',ab||'<p class="muted">No details yet.</p>',false);
   var done=n.pois.filter(function(p){return p.done;}).length,ex=n.kind==='place'?'a specific artwork, room, dish…':n.kind==='city'?'a neighborhood, market, day trip…':'a region, route, tradition…';
   h+=dt(n.id+':poi','🧭 Points of interest'+(n.pois.length?' <span class="muted">('+done+'/'+n.pois.length+')</span>':''),'<ul class="pois">'+n.pois.map(function(p,i){return '<li><label><input type="checkbox" data-poi="'+i+'"'+(p.done?' checked':'')+'><span class="'+(p.done?'done':'')+'">'+esc(p.t)+'</span></label><button data-act="delpoi" data-i="'+i+'" title="Remove">✕</button></li>';}).join('')+'</ul><form class="inline-add" id="poiForm"><input id="poiIn" placeholder="Add: '+ex+'"><button class="btn sm">Add</button></form>',false);
-  var tl='<div class="row"><span class="vis">🔁 Visits <button class="btn sm ghost" data-act="vdec"'+(vis(n)?'':' disabled')+'>−</button><b>'+vis(n)+'×</b><button class="btn sm ghost" data-act="vinc">+</button></span></div><div class="row">'+(n.lat!=null?'<button class="btn sm ghost" data-act="showmap">🗺️ On map</button>':'')+(n.kind==='place'?'<button class="btn sm ghost" data-act="refresh1" title="Re-fetch API data for this place">🔄 Refresh data</button>':'')+(n.kind==='city'?'<button class="btn sm ghost" data-act="refresh" title="Re-fetch API data for this city and its places (fills empty fields and updates ones that came from an API)">🔄 Refresh data</button>':'')+'</div>';
+  var tl='<div class="row"><span class="vis">🔁 Visits <button class="btn sm ghost" data-act="vdec"'+(vis(n)?'':' disabled')+'>−</button><b>'+vis(n)+'×</b><button class="btn sm ghost" data-act="vinc">+</button></span></div><div class="row">'+(n.lat!=null?'<button class="btn sm ghost" data-act="showmap">🗺️ On map</button>':'')+(n.kind==='place'?'<button class="btn sm ghost" data-act="refresh1" title="Re-fetch API data for this place">🔄 Refresh data</button>':'')+(n.kind==='country'?'<button class="btn sm ghost" data-act="refresh0" title="Re-fetch only this country\'s own data (nothing below it is touched)">🔄 Refresh country data</button>':'')+(n.kind==='city'?'<button class="btn sm ghost" data-act="refresh" title="Re-fetch API data for this city and its places (fills empty fields and updates ones that came from an API)">🔄 Refresh data</button>':'')+'</div>';
   h+=dt(n.id+':tools','🛠️ Tools',tl,false);
   return h+'</div></section>';}
 
@@ -507,6 +519,10 @@ function prow(n,i,tot,rk){var ph=safe(n.photo),f=[];
    +'<div class="prow-b"><div class="prow-t">'+esc(n.name)+(n.must?' <span class="star">⭐</span>':'')+'</div><div class="prow-s">'+esc((TYPES[n.type]||TYPES.other)[1]+(ad?' · '+ad:''))+'</div>'
    +(n.info?'<div class="prow-i">'+esc(n.info)+'</div>':'')+(f.length?'<div class="prow-f">'+f.map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'</div>':'')
    +'<div class="prow-m">'+stamp(n)+(rat(n)?'<span class="rt">'+stars(rat(n))+'</span>':'')+(vis(n)?'<span class="muted">🔁 '+vis(n)+'×</span>':'')+'</div></div></div>';}
+function groupedPlaces(items,cur){var g={},keys=[];
+  items.forEach(function(n){var p=cur?S.by[n.parentId]:path(n)[0],k=p?p.id:'';if(!g[k]){g[k]={p:p,a:[]};keys.push(k);}g[k].a.push(n);});
+  keys.sort(function(a,b){return (g[a].p?g[a].p.name:'').localeCompare(g[b].p?g[b].p.name:'');});
+  return keys.map(function(k){var o=g[k];return dt('g:'+(cur?cur.id:'w')+':'+k,(o.p?icon(o.p)+' '+esc(o.p.name):'📍 Other')+' <span class="muted">('+o.a.length+')</span>','<div class="plist">'+o.a.map(function(n,i){return prow(n,i,o.a.length,false);}).join('')+'</div>',hasF());}).join('');}
 function moveTo(c,id,pos){var arr=ordered((S.kids[c.id]||[]).filter(function(k){return k.kind==='place';})),i=-1,k;
   for(k=0;k<arr.length;k++)if(arr[k].id===id)i=k;if(i<0)return;pos=Math.max(0,Math.min(arr.length-1,pos));if(pos===i)return renderAll();
   var it=arr.splice(i,1)[0];arr.splice(pos,0,it);var ch=[];
@@ -515,7 +531,7 @@ function moveTo(c,id,pos){var arr=ordered((S.kids[c.id]||[]).filter(function(k){
 function renderAtlas(){
   var el=$('atlas'),cur=S.nav?S.by[S.nav]:null,h='';
   if(!S.nodes.length){el.innerHTML='<p class="empty">🧭 Your atlas is empty.<br>Press <b>+ Add</b> and search for a country, city or place.</p>';return;}
-  h+='<nav class="crumbs">'+(cur?'<button class="backb" data-crumb="'+(cur.parentId||'')+'">← Back</button> ':'')+'<button data-crumb="">🧭 World</button>'+(cur?path(cur).map(function(p){return ' › '+(p===cur?'<b>'+esc(p.name)+'</b>':'<button data-crumb="'+p.id+'">'+esc(p.name)+'</button>');}).join(''):'')+'</nav>';
+  h+='<nav class="crumbs">'+(cur?'<button class="backb" data-crumb="'+(cur.parentId||'')+'">← Back</button> ':'')+'<button data-crumb="">🏠 Home</button>'+(cur?path(cur).map(function(p){return ' › '+(p===cur?'<b>'+esc(p.name)+'</b>':'<button data-crumb="'+p.id+'">'+esc(p.name)+'</button>');}).join(''):'')+'</nav>';
   if(!cur)h+='<div class="seg">'+[['countries','🌍 Countries'],['cities','🏙️ Cities'],['places','📍 Places']].map(function(s){return '<button data-scope="'+s[0]+'" class="'+(S.scope===s[0]?'on':'')+'">'+s[1]+'</button>';}).join('')+'</div>';
   else h+=hero(cur);
   if(!cur||cur.kind!=='place'){
@@ -523,7 +539,7 @@ function renderAtlas(){
     h+='<div class="list-head">'+(cur&&cur.kind==='country'?'<div class="seg" style="margin:0"><button data-mode="cities" class="'+(S.mode==='cities'?'on':'')+'">🏙️ Cities</button><button data-mode="places" class="'+(S.mode==='places'?'on':'')+'">📍 All places</button></div>':cur?'<h3>📍 Places in '+esc(cur.name)+'</h3>':'<span></span>')+'<span class="muted">'+items.length+' shown'+(cur&&cur.kind!=='place'&&!(cur.kind==='country'&&S.mode==='cities')?' <button class="btn sm ghost" data-act="addchild">+ Place</button>':'')+'</span></div>';
     if(rk&&items.length>1)h+='<p class="hint" style="margin:0 0 8px">Prioritize with ▲▼ or type a position number.</p>';
     else if(cur&&cur.kind==='city'&&items.length>1)h+='<p class="hint" style="margin:0 0 8px">Reordering is available with “My priority order” and no filters.</p>';
-    h+=items.length?(isP?'<div class="plist">'+items.map(function(n,i){return prow(n,i,items.length,rk);}).join('')+'</div>':'<div class="cards">'+items.map(card).join('')+'</div>'):'<p class="empty">'+(hasF()?'Nothing matches these filters.':'Nothing here yet.')+'</p>';}
+    h+=items.length?(isP?((cur&&cur.kind==='city')?'<div class="plist">'+items.map(function(n,i){return prow(n,i,items.length,rk);}).join('')+'</div>':groupedPlaces(items,cur)):'<div class="cards">'+items.map(card).join('')+'</div>'):'<p class="empty">'+(hasF()?'Nothing matches these filters.':'Nothing here yet.')+'</p>';}
   el.innerHTML=h;}
 
 /* ---------- atlas events ---------- */
@@ -542,6 +558,7 @@ $('atlas').addEventListener('click',function(e){
   else if(a==='rate'){var rv=+t.getAttribute('data-val');n.extra=Object.assign({},n.extra||{},{rating:rat(n)===rv?0:rv});}
   else if(a==='sugg')return openSug(n);
   else if(a==='refresh')return refreshCity(n);
+  else if(a==='refresh0'){toast('Refreshing '+n.name+'…');fillNode(n,null,false).then(function(ch){toast(ch?'Updated — '+n.name:'Nothing new found for '+n.name);});return;}
   else if(a==='refresh1'){var pr=S.by[n.parentId];if(!pr)return toast('This place has no parent city.',true);toast('Refreshing '+n.name+'…');fillNode(n,pr,true).then(function(ch){toast(ch?'Updated — '+n.name:'Nothing new found for '+n.name);});return;}
   else if(a==='must'){n.must=!n.must;}
   else if(a==='edit')return openForm(n);
@@ -553,7 +570,8 @@ $('atlas').addEventListener('click',function(e){
 $('atlas').addEventListener('change',function(e){var rk=e.target.getAttribute&&e.target.getAttribute('data-rk');if(rk){var c0=S.by[S.nav];if(c0)moveTo(c0,rk,(parseInt(e.target.value,10)||1)-1);return;}var i=e.target.getAttribute&&e.target.getAttribute('data-poi');if(i==null)return;var n=S.by[S.nav];if(!n||!n.pois[i])return;n.pois[i].done=e.target.checked;saveNode(n);renderAll();});
 $('atlas').addEventListener('toggle',function(e){var d=e.target;if(d&&d.getAttribute&&d.getAttribute('data-dk'))S.det[d.getAttribute('data-dk')]=d.open;},true);
 $('atlas').addEventListener('submit',function(e){if(e.target.id!=='poiForm')return;e.preventDefault();var v=$('poiIn').value.trim(),n=S.by[S.nav];if(!v||!n)return;n.pois.push({t:v,done:false});saveNode(n);renderAll();$('poiIn').focus();});
-$('sidebar').addEventListener('click',function(e){var t=e.target.closest('[data-nav],[data-back]');if(!t)return;
+$('sidebar').addEventListener('click',function(e){var t=e.target.closest('[data-nav],[data-back],[data-home]');if(!t)return;
+  if(t.hasAttribute('data-home'))return navigate(null,true);
   if(t.hasAttribute('data-back')){var c=S.nav&&S.by[S.nav];return navigate(c?c.parentId:'');}
   navigate(t.getAttribute('data-nav'));});
 document.querySelectorAll('.main-tab').forEach(function(b){b.addEventListener('click',function(){S.mapIds=null;switchTab(b.getAttribute('data-tab'));});});
@@ -563,6 +581,7 @@ $('fQ').addEventListener('input',function(){S.f.q=this.value.trim();renderAll();
 [['fType','type'],['fTag','tag'],['fStatus','status'],['fSort','sort']].forEach(function(p){$(p[0]).addEventListener('change',function(){S.f[p[1]]=this.value;renderAll();});});
 $('fMust').addEventListener('change',function(){S.f.must=this.checked;renderAll();});
 $('btnClear').addEventListener('click',function(){S.f={q:'',type:'',tag:'',status:'',must:false,sort:S.f.sort};$('fQ').value='';$('fStatus').value='';$('fMust').checked=false;renderAll();});
+(function(){var h=document.querySelector('.app-header h1');h.style.cursor='pointer';h.title='Home';h.addEventListener('click',function(){S.mapIds=null;navigate(null,true);});})();
 $('fab').addEventListener('click',function(){if(S.tab==='trips'){if(trip())openItem(null);else openTripForm(null);}else openForm(null,addDefaults());});
 function addDefaults(){var c=S.nav?S.by[S.nav]:null;
   if(!c)return{kind:S.scope==='countries'?'country':S.scope==='cities'?'city':'place'};
@@ -813,6 +832,21 @@ $('formItem').addEventListener('submit',function(e){e.preventDefault();var t=tri
 $('iDel').addEventListener('click',function(){var t=trip();if(!t||!confirm('Delete this activity?'))return;t.items=t.items.filter(function(i){return i.id!==S.editItem;});saveTrip(t);closeModals();renderTrips();});
 
 
+/* ---------- pick from saved places (trip item form) ---------- */
+function pickDraw(){var q=norm($('pkQ').value.trim()),g={},keys=[];
+  S.nodes.filter(function(n){return n.kind==='place'&&(!q||norm(n.name+' '+(ctx(n)||'')+' '+(n.address||'')).indexOf(q)>=0);}).forEach(function(n){var c=S.by[n.parentId],k=c?c.id:'';if(!g[k]){g[k]={c:c,a:[]};keys.push(k);}g[k].a.push(n);});
+  keys.sort(function(a,b){return (g[a].c?ctx(g[a].c)+g[a].c.name:'').localeCompare(g[b].c?ctx(g[b].c)+g[b].c.name:'');});
+  $('pkList').innerHTML=keys.length?keys.map(function(k){var o=g[k];return '<details class="dt" open><summary>'+(o.c?icon(o.c)+' '+esc(o.c.name)+(ctx(o.c)?' · '+esc(ctx(o.c)):''):'📍 Other')+' <span class="muted">('+o.a.length+')</span></summary><div class="dt-b">'+ordered(o.a).map(function(n){var ph=safe(n.photo);
+    return '<div class="sg" data-pickid="'+n.id+'" style="cursor:pointer"><div class="sg-img" style="width:84px;height:62px"><span>'+icon(n)+'</span>'+(ph?'<img data-hide loading="lazy" referrerpolicy="no-referrer" src="'+esc(ph)+'" alt="">':'')+'</div><div class="sg-t"><b>'+esc(n.name)+'</b><small>'+esc((TYPES[n.type]||TYPES.other)[1]+(n.durationH!=null?' · ⏳ '+(n.extra&&n.extra.durEst?'≈':'')+n.durationH+' h':'')+(n.hours?' · 🕒 '+n.hours:''))+'</small></div></div>';}).join('')+'</div></details>';}).join(''):'<p class="muted">'+(S.nodes.some(function(n){return n.kind==='place';})?'No saved place matches.':'No saved places yet.')+'</p>';}
+$('iMine').addEventListener('click',function(){$('pkQ').value='';pickDraw();$('modalPick').hidden=false;});
+$('pkQ').addEventListener('input',pickDraw);
+$('modalPick').addEventListener('click',function(e){if(e.target.closest('[data-close]')||e.target===$('modalPick')){e.stopPropagation();$('modalPick').hidden=true;}});
+$('pkList').addEventListener('click',function(e){var d=e.target.closest('[data-pickid]');if(!d)return;var n=S.by[d.getAttribute('data-pickid')];if(!n)return;
+  var o={name:n.name,address:n.address,lat:n.lat,lon:n.lng,nodeId:n.id,website:n.website,label:n.name};S.pk.iName=o;
+  $('iName').value=n.name;$('iAddr').value=n.address||'';$('iLat').value=n.lat==null?'':n.lat;$('iLon').value=n.lng==null?'':n.lng;$('iNode').value=n.id;if(n.website&&!$('iSite').value)$('iSite').value=n.website;$('iNameRes').hidden=true;
+  if(n.lat!=null&&n.lng!=null){$('iTz').value='';getTz(n.lat,n.lng).then(function(z){if(z&&S.pk.iName===o)$('iTz').value=z;});}
+  $('modalPick').hidden=true;});
+
 /* ---------- suggestions (Wikivoyage) ---------- */
 var SG={node:null,items:[],tok:0};
 function sgType(o){var t=norm((o._t||'')+' '+(o.name||'')+' '+(o.d||''));
@@ -830,9 +864,26 @@ function sgCountry(n){return wvPages([n.name]).then(function(ps){var txt=(ps[0]|
       var la=l.match(/lat=(-?[\d.]+)/),lo=l.match(/long=(-?[\d.]+)/),d=l.replace(/^[^\]]*\]\]'*/,'').replace(/^[\s\-–—:]+/,'');
       out.push({kind:'city',name:k[1].trim(),d:brief(wtClean(d),160),lat:la?+la[1]:null,lon:lo?+lo[1]:null});});});
   return out;});}
+function wvPagesAll(t){var c=[],i;for(i=0;i<t.length;i+=5)c.push(wvPages(t.slice(i,i+5)).catch(function(){return [];}));return Promise.all(c).then(function(r){return [].concat.apply([],r);});}
+var SG_IN=/monument|memorial|landmark|tourist|attraction|\bpark\b|garden|square|plaza|\bgate\b|tower|bridge|palace|castle|fortress|cathedral|church|basilica|abbey|mosque|temple|synagogue|museum|gallery|viewpoint|observation|column|statue|\bzoo\b|\blake\b|beach|\bwall\b|fountain|market|theat(?:re|er)|opera|monastery|ruins|cemetery|promenade|boulevard|canal|island|stadium|checkpoint|crossing|town hall|botanical|aquarium|windmill|lighthouse/i,
+    SG_EX=/\b(railway|metro|subway|u-bahn|s-bahn|station|school|university|hospital|company|corporation|neighbou?rhood|borough|locality|municipality|district of|hotel|hostel|apartment|office building|skyscraper|embassy)\b/i;
+function sgWiki(n){if(n.lat==null||n.lng==null)return Promise.resolve([]);var A='https://en.wikipedia.org/w/api.php?format=json&origin=*&';
+  return jget(A+'action=query&list=geosearch&gscoord='+n.lat+'|'+n.lng+'&gsradius=8000&gslimit=100&gsnamespace=0').then(function(d){
+    var L=(d.query&&d.query.geosearch)||[],pos={},t=L.map(function(x){pos[x.pageid]=x;return x.title;}),c=[],i;
+    for(i=0;i<t.length;i+=20)c.push(jget(A+'action=query&formatversion=2&prop=extracts|pageimages&exintro=1&explaintext=1&exsentences=2&exlimit=20&piprop=thumbnail&pithumbsize=480&redirects=1&titles='+encodeURIComponent(t.slice(i,i+20).join('|'))).catch(function(){return null;}));
+    return Promise.all(c).then(function(rs){var out=[];rs.forEach(function(r){((r&&r.query&&r.query.pages)||[]).forEach(function(p){var ex=(p.extract||'').trim(),g=pos[p.pageid];if(!ex||!g)return;
+      var first=ex.split('. ')[0];if(!SG_IN.test(ex)||SG_EX.test(first))return;var th=p.thumbnail&&p.thumbnail.source,nm=p.title.replace(/\s*\([^)]*\)$/,'');
+      out.push({kind:'place',name:nm,d:brief(ex,170),lat:g.lat,lon:g.lon,photo:th||'',_t:'see',type:sgType({_t:'see',name:nm,d:ex}),score:(th?2:0)+(ex.length>120?1:0)+(SG_IN.test(first)?1:0)});});});return out;});});}
+function sgMix(a,b){var m={},all=[];
+  a.concat(b).forEach(function(x){var k=norm(x.name),hit=null;Object.keys(m).forEach(function(q){if(q===k||(q.length>5&&k.length>5&&(q.indexOf(k)>=0||k.indexOf(q)>=0)))hit=m[q];});
+    if(hit){if(!hit.photo&&x.photo)hit.photo=x.photo;if(hit.lat==null&&x.lat!=null){hit.lat=x.lat;hit.lon=x.lon;}return;}m[k]=x;all.push(x);});
+  var g={};all.forEach(function(x){(g[x.type]=g[x.type]||[]).push(x);});Object.keys(g).forEach(function(k){g[k].sort(function(p,q){return q.score-p.score;});});
+  var ord=['monument','park','viewpoint','castle','religious','museum','beach','activity','food','other'],keys=ord.filter(function(k){return g[k];}).concat(Object.keys(g).filter(function(k){return ord.indexOf(k)<0;})),out=[],more=true,r;
+  for(r=0;out.length<48&&more;r++){more=false;keys.forEach(function(k){if(g[k][r]){out.push(g[k][r]);more=true;}});}
+  return out.slice(0,48);}
 function sgCity(n){var nm=n.name,A='https://en.wikivoyage.org/w/api.php?format=json&origin=*&';
-  return jget(A+'action=query&list=prefixsearch&pssearch='+encodeURIComponent(nm+'/')+'&pslimit=7').then(function(d){
-    var subs=((d.query&&d.query.prefixsearch)||[]).map(function(x){return x.title;});return wvPages([nm].concat(subs));}).then(function(ps){
+  return jget(A+'action=query&list=prefixsearch&pssearch='+encodeURIComponent(nm+'/')+'&pslimit=14').then(function(d){
+    var subs=((d.query&&d.query.prefixsearch)||[]).map(function(x){return x.title;});return wvPagesAll([nm].concat(subs));}).then(function(ps){
     var out=[],seen={};
     ps.forEach(function(p){var txt=p.txt,i=0;while((i=txt.indexOf('{{',i))>=0){var mm=txt.slice(i+2,i+16).match(/^\s*([A-Za-z]+)\s*[|\n}]/);if(!mm||!LTYPES[mm[1].toLowerCase()]){i+=2;continue;}
         var dd=0,j=i,end=-1;while(j<txt.length-1){var tw=txt.substr(j,2);if(tw==='{{'){dd++;j+=2;}else if(tw==='}}'){dd--;j+=2;if(dd===0){end=j;break;}}else j++;}
@@ -842,20 +893,27 @@ function sgCity(n){var nm=n.name,A='https://en.wikivoyage.org/w/api.php?format=j
         var it={kind:'place',name:nme,d:brief(desc,170),hours:wtClean(o.hours).slice(0,160),price:wtClean(o.price).slice(0,120),site:safe(wtClean(o.url||'')),addr:wtClean(o.address||'').slice(0,160),
           lat:o.lat?+o.lat:null,lon:o['long']?+o['long']:null,visitH:visitFrom(desc),_t:o._t};it.type=sgType({_t:o._t,name:nme,d:desc});
         it.score=({see:3,'do':2,eat:1,drink:1})[o._t]+(desc.length>40?2:0)+(it.hours?.5:0)+(it.lat!=null?.5:0)+(p.title===nm?1:0);out.push(it);}});
-    out.sort(function(a,b){return b.score-a.score;});return out.slice(0,24);});}
+    return out;}).then(function(out){return sgWiki(n).then(function(w){return sgMix(out,w);}).catch(function(){return sgMix(out,[]);});});}
 function sgPhoto(x,par){var viaWd=function(){return wdFind2(x.name,null).then(wdFacts).then(function(f){return f.img||'';});};
   if(x.kind==='place')return (x.lat!=null?commonsGeo(x.name,x.lat,x.lon):Promise.resolve('')).then(function(u){return u||viaWd();}).catch(function(){return '';});
   return wvBrief(x.name+' '+par.name).then(function(w){return w.img||viaWd();}).catch(function(){return '';});}
-function sgPhotos(tok){var q=SG.items.map(function(x,i){return i;}),run=0;
+function sgPhotos(tok){var q=[],run=0;SG.items.forEach(function(x,i){if(!x.photo)q.push(i);});
   function pump(){while(run<3&&q.length){(function(i){var x=SG.items[i];run++;sgPhoto(x,SG.node).then(function(u){run--;if(tok!==SG.tok)return;if(u){x.photo=u;var el=$('sgi'+i);if(el&&!el.querySelector('img')){var im=document.createElement('img');im.setAttribute('data-hide','');im.referrerPolicy='no-referrer';im.src=u;im.alt='';el.appendChild(im);}}pump();});})(q.shift());}}
   pump();}
-function openSug(n){SG.node=n;SG.items=[];var tok=++SG.tok;$('sgTitle').textContent='✨ Suggestions — '+n.name;$('sgList').innerHTML='';$('sgSt').textContent='Looking up Wikivoyage…';$('modalSug').hidden=false;
+function openSug(n){SG.node=n;SG.items=[];SG.cat='';$('sgChips').innerHTML='';var tok=++SG.tok;$('sgTitle').textContent='✨ Suggestions — '+n.name;$('sgList').innerHTML='';$('sgSt').textContent='Looking up Wikivoyage…';$('modalSug').hidden=false;
   (n.kind==='country'?sgCountry(n):sgCity(n)).then(function(items){if(tok!==SG.tok)return;SG.items=items;sgDraw();sgPhotos(tok);
     $('sgSt').textContent=items.length?'From Wikivoyage — check details before relying on them.':'Nothing found on Wikivoyage for “'+n.name+'”.';}).catch(function(){if(tok===SG.tok)$('sgSt').textContent='Could not reach Wikivoyage right now.';});}
 function sgDraw(){var n=SG.node,have={};desc(n.id).concat(S.kids[n.id]||[]).forEach(function(c){have[norm(c.name)]=1;});
-  $('sgList').innerHTML=SG.items.map(function(x,i){var done=have[norm(x.name)]||x.added,ic=x.kind==='city'?'🏙️':(TYPES[x.type]||TYPES.other)[0],th='<div class="sg-img" id="sgi'+i+'"><span>'+ic+'</span>'+(x.photo?'<img data-hide loading="lazy" referrerpolicy="no-referrer" src="'+esc(x.photo)+'" alt="">':'')+'</div>',meta=[x.hours?'🕒 '+x.hours:'',x.price?'💶 '+x.price:''].filter(Boolean).map(esc).join(' · ');
+  sgChips();
+  $('sgList').innerHTML=SG.items.map(function(x,i){if(SG.cat&&x.type!==SG.cat)return '';var done=have[norm(x.name)]||x.added,ic=x.kind==='city'?'🏙️':(TYPES[x.type]||TYPES.other)[0],th='<div class="sg-img" id="sgi'+i+'"><span>'+ic+'</span>'+(x.photo?'<img data-hide loading="lazy" referrerpolicy="no-referrer" src="'+esc(x.photo)+'" alt="">':'')+'</div>',meta=[x.hours?'🕒 '+x.hours:'',x.price?'💶 '+x.price:''].filter(Boolean).map(esc).join(' · ');
     return '<div class="sg">'+th+'<div class="sg-t"><b>'+ic+' '+esc(x.name)+'</b><small>'+esc(x.d||'')+(meta?(x.d?'<br>':'')+meta:'')+'</small></div>'+(done?'<span class="hint">✓ Added</span>':'<button class="btn sm" data-sg="'+i+'">+ Add</button>')+'</div>';}).join('');}
-function geoFind(name,place,lat,addr){var qs=[name+', '+place],w=name.split(/\s+/);if(w.length>3)qs.push(w.slice(0,3).join(' ')+', '+place);if(addr&&addr.length>6)qs.push(addr);qs.push(name);var i=0,np=norm(place);
+function sgChips(){var c={},k,h='';SG.items.forEach(function(x){if(x.type)c[x.type]=(c[x.type]||0)+1;});var ks=Object.keys(c);
+  if(ks.length<2){$('sgChips').innerHTML='';return;}
+  h='<button data-sgcat="" class="'+(SG.cat?'':'on')+'">All ('+SG.items.length+')</button>';
+  ks.sort(function(a,b){return c[b]-c[a];}).forEach(function(t){h+='<button data-sgcat="'+t+'" class="'+(SG.cat===t?'on':'')+'">'+(TYPES[t]||TYPES.other)[0]+' '+(TYPES[t]||TYPES.other)[1]+' ('+c[t]+')</button>';});
+  $('sgChips').innerHTML=h;}
+$('sgChips').addEventListener('click',function(e){var b=e.target.closest('[data-sgcat]');if(!b)return;SG.cat=b.getAttribute('data-sgcat');sgDraw();});
+function geoFind(name,place,lat,addr){var qs=[place?name+', '+place:name],w=name.split(/\s+/);if(w.length>3&&place)qs.push(w.slice(0,3).join(' ')+', '+place);if(addr&&addr.length>6)qs.push(addr);qs.push(name);var i=0,np=norm(place);
   function nx(){if(i>=qs.length)return Promise.resolve(null);return jget(NOM+'&limit=1&q='+encodeURIComponent(qs[i++])).then(function(r){var g=r&&r[0];
     if(g&&(lat!=null?Math.abs(+g.lat-lat)<0.1:norm(g.display_name).indexOf(np)>=0))return g;return nx();}).catch(nx);}
   return nx();}
@@ -871,11 +929,11 @@ function apiSet(nd,k,v){if(v==null||v==='')return false;var ap=(nd.extra&&nd.ext
 function fillNode(nd,par,full){var isP=nd.kind==='place',ch=false;function A(k,v){if(apiSet(nd,k,v))ch=true;}
   return (isP&&full?wvListing(nd.name,par.name,nd.lat,nd.lng):Promise.resolve(null)).then(function(w0){
     if(w0){A('hours',w0.hours);A('price',w0.price);A('website',w0.site);A('info',w0.info);if(w0.visitH&&(nd.durationH==null||(nd.extra&&nd.extra.durEst))){if(apiSet(nd,'durationH',w0.visitH)){nd.extra=Object.assign({},nd.extra,{durEst:true});}}}
-    return geoFind(nd.name,par.name,nd.lat==null?null:nd.lat,isP?nd.address:'');}).then(function(g){var et=(g&&g.extratags)||{};
+    return geoFind(nd.name,par?par.name:'',nd.lat==null?null:nd.lat,isP?nd.address:'');}).then(function(g){var et=(g&&g.extratags)||{};
     if(g){if(nd.lat==null){nd.lat=+g.lat;nd.lng=+g.lon;ch=true;}
       if(isP){A('address',g.display_name);var sw=et.website||et['contact:website'];if(sw){if(!/^https?:/i.test(sw))sw='https://'+sw;A('website',safe(sw));}
         A('hours',et.opening_hours?String(et.opening_hours).slice(0,160):'');A('price',et.charge?String(et.charge).slice(0,80):(et.fee==='no'?'Free':''));}}
-    return Promise.all([wdFind2(nd.name,et).then(wdFacts),isP?Promise.resolve({}):wvBrief(nd.name+' '+par.name)]).then(function(r){var f=r[0]||{},w=r[1]||{};
+    return Promise.all([wdFind2(nd.name,et).then(wdFacts),isP?Promise.resolve({}):wvBrief(nd.name+(par?' '+par.name:''))]).then(function(r){var f=r[0]||{},w=r[1]||{};
       A('photo',osmPhoto(et)||f.img||w.img||'');A('website',safe(f.site||''));A('info',w.text||(f.desc?brief(cap(f.desc)+'.',200):''));
       if(!nd.photo&&isP)return commonsGeo(nd.name,nd.lat,nd.lng).then(function(u){A('photo',u);});});
   }).then(function(){saveNode(nd);renderAll();return ch;}).catch(function(){return false;});}
@@ -1004,7 +1062,7 @@ function openForm(n,def){
   $('eSeason').value=g('season','');$('eSite').value=g('website','');$('eLinks').value=n?linksTxt(n.links):'';
   $('eStamp').value=x.stamp||'';$('eStampColor').value=/^#[0-9a-f]{6}$/i.test(x.stampColor||'')?x.stampColor:'#8a2f1e';$('eVisited').value=x.visitedOn||'';
   S.durEst=!!x.durEst;durHint();coordsVis();$('eMore').open=false;$('lkStatus').textContent='';$('lkRes').hidden=true;$('btnDel').hidden=!n;prev();$('modalForm').hidden=false;}
-function closeModals(){['modalForm','modalItem','modalTrip','modalKeys','modalSug'].forEach(function(i){$(i).hidden=true;});S.tok++;}
+function closeModals(){['modalForm','modalItem','modalTrip','modalKeys','modalSug','modalPick'].forEach(function(i){$(i).hidden=true;});S.tok++;}
 function prev(){var u=safe(normPhoto($('ePhoto').value)),p=$('ePrev');p.hidden=!u;if(u){p.style.display='';p.setAttribute('data-hide','');p.referrerPolicy='no-referrer';p.src=u;}}
 $('ePhoto').addEventListener('input',prev);
 function coordsVis(){$('eCoords').hidden=!($('eKind').value!=='country'&&!$('eAddress').value.trim());}
@@ -1090,7 +1148,7 @@ $('formEntry').addEventListener('submit',function(e){
   n.status=$('eStatus').value;n.must=$('eMust').checked;n.hours=$('eHours').value.trim();n.price=$('ePrice').value.trim();n.durationH=numOrNull($('eDur').value);
   n.season=$('eSeason').value.trim();n.website=$('eSite').value.trim();n.links=parseLinks($('eLinks').value);
   if(kind==='country')n.extra=Object.assign({},n.extra||{},{stamp:$('eStamp').value.trim(),stampColor:$('eStampColor').value,visitedOn:$('eVisited').value.trim()});else n.extra=Object.assign({},n.extra||{},{durEst:!!(S.durEst&&n.durationH!=null)});
-  if(!id){S.nodes.push(n);if(S.tab==='atlas'){S.nav=null;S.view='list';S.scope=kind==='country'?'countries':kind==='city'?'cities':'places';}}
+  if(!id){S.nodes.push(n);}
   reindex();saveNode(n);closeModals();renderAll();toast('Saved — '+n.name);});
 $('btnDel').addEventListener('click',function(){var n=S.by[$('fId').value];if(!n)return;var d=desc(n.id);
   if(!confirm('Delete "'+n.name+'"'+(d.length?' and its '+d.length+' nested entries':'')+'?'))return;
